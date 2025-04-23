@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+- 我用的是 bun，不是 node
+- HeroUI 中按钮组件的 onClick 方法已被废弃，用 onPress 替代
