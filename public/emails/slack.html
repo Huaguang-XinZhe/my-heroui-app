@@ -1,0 +1,962 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+
+<!--[if gte mso 9]><xml>    <o:OfficeDocumentSettings>    <o:AllowPNG/>    <o:PixelsPerInch>96</o:PixelsPerInch>    </o:OfficeDocumentSettings>   </xml><![endif]-->
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;" charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!--[if !mso]><!-->
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<!--<![endif]-->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+<!-- Begin Knak Styles. Added 9/16/2021 -->
+<style type="text/css">
+ #outlook a {
+  padding:0;
+ }
+ body {
+  margin:0;
+  padding:0;
+  -webkit-text-size-adjust:100%;
+  -ms-text-size-adjust:100%;
+ }
+ table {
+  border-spacing:0;
+ }
+ img {
+  border:0;
+  height:auto;
+  line-height:100%;
+  outline:none;
+  text-decoration:none;
+  -ms-interpolation-mode:bicubic;
+ }
+ p {
+  display:block;
+  margin:13px 0;
+ }
+</style>
+<!--[if mso]>                      <xml>   <o:OfficeDocumentSettings>   <o:AllowPNG/>   <o:PixelsPerInch>96</o:PixelsPerInch>   </o:OfficeDocumentSettings>  </xml>  <style type="text/css">   table {     border-collapse:collapse;    mso-table-lspace:0pt;    mso-table-rspace:0pt;   }                .mj-outlook-group-fix {     width:100% !important;    }   .block-grid-outlook .button-container a {    background: transparent !important;   }  </style> <![endif]-->
+<style type="text/css">
+ @media only screen and (min-width:620px) {
+  .mj-column-per-100 {
+   width:100% !important;
+   max-width: 100%;
+  }
+  .mj-column-per-60 {
+   width:60% !important;
+   max-width: 60%;
+  }
+  .mj-column-per-40 {
+   width:40% !important;
+   max-width: 40%;
+  }
+  .mj-column-per-50 {
+   width:50% !important;
+   max-width: 50%;
+  }
+  .mj-column-per-17 {
+   width:17% !important;
+   max-width: 17%;
+  }
+  .mj-column-per-83 {
+   width:83% !important;
+   max-width: 83%;
+  }
+ }
+</style>
+<style type="text/css">
+ @media only screen and (max-width:620px) {
+  table.mj-full-width-mobile {
+   width: 100% !important;
+  }
+  td.mj-full-width-mobile {
+   width: auto !important;
+  }
+ }
+</style>
+<style type="text/css">
+ ul {
+  display: block;
+ }
+ ul li {
+  list-style: disc;
+ }
+ li li {
+  list-style: circle;
+ }
+ .image-highlight{
+  transition: 0.3s;
+ }
+ .image-highlight:hover {
+  filter: brightness(1.2);
+ }
+ .button-highlight{
+  transition: 0.3s;
+ }
+ .button-highlight:hover {
+  filter: brightness(1.5);
+ }
+ @media only screen and (min-width: 620px) {
+  .hide-on-mobile {
+   display: block !important;
+  }
+ }
+ @media only screen and (max-width: 620px) {
+  .hide-on-mobile {
+   display: none !important;
+  }
+  .hide-on-desktop {
+   display: block !important;
+   max-height: none !important;
+  }
+  .hide-on-desktop td {
+   display: table-cell !important;
+   max-height: none !important;
+  }
+ }
+ .hide-on-desktop, .hide-on-desktop td {
+  mso-hide: all;
+  display: none;
+  max-height: 0px;
+  overflow: hidden;
+ }
+</style>
+
+<!-- End Knak Styles -->
+<!-- Begin Slack Omni Styles -->
+<style type="text/css">
+.ReadMsgBody {
+    width: 100%;
+} /* Forces Hotmail to display emails at full width */
+.ExternalClass {
+    width: 100%;
+} /* Hotmail table centering fix */
+.ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {
+    line-height: 100%;
+}  /* Forces Hotmail to display normal line spacing */
+.ExternalClass * {
+    line-height: 100%
+}
+p {
+    margin: 1em 0;
+} /* Yahoo paragraph fix */
+table td {
+    border-collapse: collapse;
+}  /* This resolves the Outlook 07, 10, and Gmail td padding issue fix */
+/* This resolves the issue when iphone puts links on dates, etc. */
+.appleLinksWhite a {
+    color: #ffffff;
+    text-decoration: none;
+}
+.appleLinksWhiteUL a {
+    color: #ffffff;
+    text-decoration: underline;
+}
+.appleLinksGray a {
+    color: #1D1C1D;
+    text-decoration: none;
+}
+.appleLinksGray2 a {
+    color: #707070;
+    text-decoration: none;
+}
+.appleLinksBlack a {
+    color: #1d1d1d;
+    text-decoration: none;
+}
+.appleLinksGreen a {
+    color: #1a3c34 !important;
+}
+a.mobileshow, .mobilehide {
+    display: none;
+    color: #fff; /* for Gmail */
+}
+.mobileshow, .mobilehide {
+    display: none;
+}
+sup {
+   line-height: 0;
+   font-size: 55%;
+}
+h1 {
+   font-size: 32px !important;
+   line-height: 38px !important;
+   font-weight: bold !important;
+   color: #1D1C1D !important;
+}
+
+h2 {
+   font-size: 24px !important;
+   line-height: 30px !important;
+   font-weight: bold !important;
+   color: #1D1C1D !important;
+}
+h3 {
+   font-size: 18px !important;
+   line-height: 24px !important;
+   font-weight: bold !important;
+   color: #1D1C1D !important;
+}
+
+a[x-apple-data-detectors] {
+ color: inherit !important;
+ text-decoration: none !important;
+ font-size: inherit !important;
+ font-family: inherit !important;
+ font-weight: inherit !important;
+ line-height: inherit !important;
+}
+
+  </style>
+<style type="text/css">
+@media only screen and (max-width: 660px) {
+html, body {
+    width: 100% !important;
+    min-width: 100% !important;
+    margin: 0 auto !important;
+}
+.container, .responsive-table {
+    width: 100% !important;
+}
+.body-table-spacing {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+  .image {
+   width:100% !important;
+    height:auto !important;
+    display:block !important;
+  }
+
+.drop, .block {
+    width: 100% !important;
+    display: block !important;
+}
+.drop-center {
+    width: 100% !important;
+    display: block !important;
+    text-align: center !important;
+}
+  .mobilePadding {
+   padding:0px 10px !important;
+  }
+.noPad {
+    padding: 0 0 0 0 !important;
+}
+.padTop16 {
+    padding-top: 16px !important;
+}
+.padBot20 {
+    padding: 0px 0px 20px 0px !important;
+}
+.pad20 {
+    padding-right: 20px !important;
+    padding-left: 20px !important;
+}
+.padRight10 {
+    padding-right: 10px !important;
+    padding-left: 0px !important;
+}
+.padLeft10 {
+    padding-right: 0px !important;
+    padding-left: 10px !important;
+}
+.pad5 {
+    padding-right: 5px !important;
+    padding-left: 5px !important;
+}
+.CTA-Primary {
+    width: 100% !important;
+  line-height:30px !important;
+  padding:10px 15px !important;
+  box-sizing: border-box !important;
+}
+.block {
+  display:block !important;
+  width:100% !important;
+  }
+  .blocknowidth {
+  display:block !important;
+  text-align:center !important;
+  padding-right: 0px !important;
+  }
+.mob-centerme {
+    text-align: center !important;
+}
+.mob-centermeblock {
+    text-align: center !important;
+    display:block !important;
+    width:100% !important;
+  }
+.mob-leftme {
+    text-align: left !important;
+}
+.two-column .column, .column-text, .column-image, .column-button, .column-teaminfo-r {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+.button a {
+    width: 100% !important;
+}
+.logo {
+    width: 98% !important;
+}
+.font-21 {
+    font-size: 21px !important;
+    line-height: 26px !important;
+}
+.font-18 {
+    font-size: 18px !important;
+    line-height: 24px !important;
+}
+.font-paragraph {
+    text-align: center !important;
+    font-size: 16px !important;
+}
+.hide {
+    display: none;
+}
+.show {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    width: auto !important;
+    max-height: inherit !important;
+}
+  .btn {
+    padding-top:15px !important;
+    padding-bottom:15px !important;
+}
+  .noLRpad {
+    padding-left:0px !important;
+    padding-right:0px !important;
+  }
+  .imgcenter {
+    display: block !important;
+    margin: 0 auto !important;
+  }
+  .mobJumbofont {
+    font-size: 28px !important;
+  line-height: 34px !important;
+  }
+
+}
+</style>
+<style type="text/css">
+@media only screen and (max-width: 450px) {
+/* global 450 wide styles */
+body {
+    width: 100% !important;
+    min-width: 100% !important;
+    margin: 0 auto !important;
+}
+.body {
+    min-width: 100vw;
+}
+.container, .responsive-table {
+    width: 100% !important;
+}
+.body-table-spacing {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+  .image {
+   width:100% !important;
+    height:auto !important;
+    display:block !important;
+  }
+.drop, .block {
+    width: 100% !important;
+    display: block !important;
+}
+.drop-center {
+    width: 100% !important;
+    display: block !important;
+    text-align: center !important;
+}
+  .mobilePadding {
+   padding:0px 10px !important;
+  }
+.noPad {
+    padding: 0 0 0 0 !important;
+}
+.padTop16 {
+    padding-top: 16px !important;
+}
+.padBot20 {
+    padding: 0px 0px 20px 0px !important;
+}
+.pad20 {
+    padding-right: 20px !important;
+    padding-left: 20px !important;
+}
+.padRight10 {
+    padding-right: 10px !important;
+    padding-left: 0px !important;
+}
+.padLeft10 {
+    padding-right: 0px !important;
+    padding-left: 10px !important;
+}
+.pad5 {
+    padding-right: 5px !important;
+    padding-left: 5px !important;
+}
+.CTA-Primary {
+    width: 100% !important;
+  line-height:30px !important;
+  padding:10px 15px !important;
+    box-sizing: border-box !important;
+}
+.block {
+  display:block !important;
+  width:100% !important;
+  }
+  .blocknowidth {
+  display:block !important;
+  text-align:center !important;
+  padding-right: 0px !important;
+  }
+.mob-centerme {
+    text-align: center !important;
+}
+.mob-centermeblock {
+    text-align: center !important;
+    display:block !important;
+    width:100% !important;
+  }
+.mob-leftme {
+    text-align: left !important;
+}
+.two-column .column, .column-text, .column-image, .column-button, .column-teaminfo-r {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+.button a {
+    width: 100% !important;
+}
+.logo {
+    width: 98% !important;
+}
+.font-21 {
+    font-size: 21px !important;
+    line-height: 26px !important;
+}
+ .font-18 {
+    font-size: 18px !important;
+    line-height: 24px !important;
+}
+  .mobJumbofont {
+    font-size: 28px !important;
+  line-height: 34px !important;
+  }
+.font-paragraph {
+    text-align: center !important;
+    font-size: 16px !important;
+}
+.hide {
+    display: none;
+}
+.show {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    width: auto !important;
+    max-height: inherit !important;
+}
+.mobileshow {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    width: auto !important;
+    max-height: inherit !important;
+}
+  .btn {
+    padding-top:15px !important;
+    padding-bottom:15px !important;
+    line-height:30px !important;
+}
+  .noLRpad {
+   padding-left:0px !important;
+    padding-right:0px !important;
+  }
+    .imgcenter {
+    display: block !important;
+    margin: 0 auto !important;
+  }
+u + .body .gwfw {
+    width: 100% !important;
+    width: 100vw !important;
+}
+  /* SAMSUNG APP FIX */
+#MessageViewBody, #MessageWebViewDiv {
+min-width:100vw;
+margin:0 !important;
+zoom:1 !important;
+}
+}
+</style>
+  <!--[if gte mso 9]>   <style>     sup { font-size: 100% !important; }   </style>  <![endif]-->
+<!--[if !mso]><!-- -->
+<link href="https://fonts.googleapis.com/css?family=Lato:400,900" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+<!--<![endif]-->
+<!--[if gte mso 10]>    <style type="text/css" media="all">         div, center, body, table, td { font-family: Arial, Helvetica, sans-serif !important; font-size:19px !important!}    </style> <![endif]-->
+
+<title></title>
+
+    <!--[if gte mso 15]>   <style type="text/css">   table { mso-line-height-rule: exactly !important; }   * { mso-line-height-rule: exactly !important; }   </style>   <![endif]-->
+<!--[if gte mso 12]>       <style type="text/css">       /* Your Outlook-specific CSS goes here. */        table { mso-line-height-rule: exactly !important; border-left: none !important; }       td { border-left: none !important; }       * { mso-line-height-rule: exactly !important; }              </style>   <![endif]-->
+<!--[if gte mso 9]><xml>    <o:OfficeDocumentSettings>    <o:AllowPNG/>    <o:PixelsPerInch>96</o:PixelsPerInch>    </o:OfficeDocumentSettings>   </xml><![endif]-->
+
+<!--[if gte mso 9]>  <style type="text/css">       .module-spacer40-border { margin-top:20px; }       #outbor { border:none !important; }       </style> <![endif]-->
+
+  <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><span style="font-family:Courier,arial; font-size:12px; color:#666666;"></span>
+<span style="display:none;">
+
+
+
+
+
+
+
+
+
+</span></td></tr></table>
+
+</head>
+
+
+  <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner">
+</td></tr></table>
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="width:100% !important;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;background-color:#ffffff;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;min-width:100%;" class="body"><style type="text/css">
+div.preheader
+{ display: none !important; }
+</style>
+<div class="preheader" style="font-size: 1px; display: none !important;">你的优惠将于 2024 年 1 月 31 日到期 </div>
+<img src="https://click.email.slackhq.com/open.aspx?ffcb10-fe9a13777566047974-fe2411747360067b721479-fe5515707c610d7b7312-ff6a157374-fe1a10797c660c74771274-ff3916717567&d=10188&bmt=0" width="1" height="1" alt="">
+
+<table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" class="gwfw">
+  <tr>
+    <td align="center">
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+  <tr>
+     <td align="center">
+<table align="center" border="0" cellpadding="0" cellspacing="0" class="container" style="font-family: Arial, Helvetica, sans-serif; width: 100%;">
+        <tr>
+          <td>
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+              <tr>
+                <td align="center" valign="top">
+                  <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td style="border:0px;">
+                        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                          <tr>
+                            <td align="left" valign="top">
+                              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                  <td width="100%">
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%" align="center" class="full-wrap" style="table-layout: fixed; margin: 0 auto;">
+  <tr>
+    <td align="center">
+      <div align="center">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" align="center" class="container" style="table-layout: fixed; margin: 0 auto;">
+          <tr>
+            <td align="center">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" align="center" class="container" style="table-layout: fixed; margin: 0 auto;">
+          <tr>
+            <td align="center">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" align="center" class="container" style="table-layout: fixed; margin: 0 auto;">
+                <tr>
+                  <td align="center">
+       <div align="center">
+                      <table width="600" class="container" border="0" align="center" cellpadding="0" cellspacing="0" style="font-family:'Source Sans Pro', Calibri, Arial, sans-serif;  background-color:#ffffff;">
+                        <tr>
+                          <td align="center">
+                            <div align="center">
+                              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color:#ffffff;">
+                                <tr>
+                                  <td align="center" style="padding:0px 20px;" class="mobilePadding">
+                                    <table width="560" border="0" cellpadding="0" cellspacing="0" class="container">
+                                      <tr>
+                                        <td align="center" style="padding-bottom:20px;">
+                                          <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><table class="container" style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt; width:560px;" cellspacing="0" cellpadding="0" border="0" align="center">
+  <tr>
+    <td class="mobilePadding imgcenter" style="border-collapse:collapse; padding:0px 0px 24px 24px;" align="center">
+      <table class="container" style="width:160px;" cellspacing="0" cellpadding="0" border="0" align="left">
+        <tr>
+          <td class="" style="border-collapse:collapse;padding:32px 0px 24px;" align="left">
+            <a  href="https://click.email.slackhq.com/?qs=c730089d7edd8ad56d49cb96eb3a677d3f5e4e5de1145fd6c72bc9fb27a419a509a53e6677d5e075c790b4eb46818dcd608b9d77692018a2" target="_blank"><img alt="Slack" src="https://image.email.slackhq.com/lib/fe5515707c610d7b7312/m/2/eac824bb-d75a-44ef-a1a6-36b9dc55ec6f.png" style="border-style:none;display:block;-ms-interpolation-mode:bicubic;outline-style:none;color:#434245;font-size:12px;font-family: Helvetica, Calibri, sans-serif; height:32px; width:122px;" width="122" height="32" border="0"></a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</td></tr></table><table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="background-color: transparent; min-width: 100%; " class="stylingblock-content-wrapper"><tr><td style="padding: 32px 0px 0px; " class="stylingblock-content-wrapper camarker-inner"><table class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:85%;" cellspacing="0" width="85%" cellpadding="0" border="0" align="center">
+  <tr>
+    <td class="pad20">
+      <table class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:100%;" cellspacing="0" width="560" cellpadding="0" border="0" align="center">
+        <tr>
+          <td align="left" style="font-family: Helvetica, Calibri, sans-serif; font-size: 32px; line-height: 38px; color: #1D1C1D;font-weight:bold;">时间不等人！Slack 专业套餐 3 个月五折优惠
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table></td></tr></table><table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="background-color: transparent; min-width: 100%; " class="stylingblock-content-wrapper"><tr><td style="padding: 32px 0px 0px; " class="stylingblock-content-wrapper camarker-inner"><table class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:85%;" cellspacing="0" width="85%" cellpadding="0" border="0" align="center">
+  <tr>
+    <td class="pad20">
+      <table class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:100%;" cellspacing="0" width="560" cellpadding="0" border="0" align="center">
+        <tr>
+          <td align="left" style="font-family: Helvetica, Calibri, sans-serif; font-size: 16px; line-height: 24px; color: #1D1C1D; font-weight:normal;">我们不希望你错过这次限时优惠。如果在 <a href="" style="text-decoration:none; color: #1D1C1D; white-space:nowrap;">2024 年 1 月 31 日</a>之前升级你的工作区“华光科技”，则可<b>在前三个月以五折优惠</b>获享 Slack 专业套餐。
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table></td></tr></table><table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="background-color: transparent; min-width: 100%; " class="stylingblock-content-wrapper"><tr><td style="padding: 32px 0px 16px; " class="stylingblock-content-wrapper camarker-inner"><span style="display:none;">
+
+
+</span>
+
+<table align="center" class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:85%;" cellpadding="0" cellspacing="0" border="0" width="85%">
+  <tr>
+    <td class="pad20">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td class="block" align="center">
+            <div>
+              <!--[if mso]> <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://slack.com/checkout/" style="height:50px;v-text-anchor:middle;width:500px;" arcsize="10%" strokecolor="#611F69" fillcolor="#611F69"> <w:anchorlock/> <center style="color:#ffffff;font-family: Helvetica, Calibri, sans-serif;font-size:16px;font-weight:bold; text-transform:uppercase;">兑换优惠</center> </v:roundrect> <![endif]-->
+              <a href="https://click.email.slackhq.com/?qs=c730089d7edd8ad57027723d576da679b0e837d0ce3c98b6da60461f4c99a51cae6458552fc21a72bcea083365fa01fe14cbfb8e4b623e4d23824cb4ee2a50bf" style="background-color:#611F69;border:1px solid #611F69;border-radius:4px;color:#ffffff;display:inline-block;font-family: Helvetica, Calibri, sans-serif; font-size: 14px; letter-spacing:0.05em; font-weight:bold;line-height:50px;text-align:center;text-decoration:none;width:500px;-webkit-text-size-adjust:none;mso-hide:all; text-transform:uppercase;" class="CTA-Primary">兑换优惠</a>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table></td></tr></table><table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="background-color: transparent; min-width: 100%; " class="stylingblock-content-wrapper"><tr><td style="padding: 0px 0px 32px; " class="stylingblock-content-wrapper camarker-inner"><table class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:85%;" cellspacing="0" width="85%" cellpadding="0" border="0" align="center">
+  <tr>
+    <td class="pad20">
+      <table class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:100%;" cellspacing="0" width="560" cellpadding="0" border="0" align="center">
+        <tr>
+          <td align="left" style="font-family: Helvetica, Calibri, sans-serif; font-size: 12px; line-height: 18px; color: #1D1C1D; font-weight:normal;">这项优惠将于 <a style="font-size: 12px; line-height: 20px; color: #1D1C1D; font-weight:normal;text-decoration: none;">2024 年 1 月 31 日</a>到期，仅对兑换时使用免费 Slack 套餐的工作区有效。需遵守相应的《条款和条件》。请阅读下文并单击<a href="https://slack.com/checkout/" alias="" style="text-decoration:underline;color:#2F8AB7;" target="_blank">此处</a>了解更多详情。*
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table></td></tr></table><table cellpadding="0" cellspacing="0" width="100%" role="presentation" class="stylingblock-content-wrapper" style="min-width: 100%; "><tr><td class="stylingblock-content-margin-cell" style="padding: 0px 32px; "><table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="background-color: #F4EDE4; min-width: 100%; " class="stylingblock-content-wrapper"><tr><td style="padding: 32px 0px 0px; " class="stylingblock-content-wrapper camarker-inner"><table class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:85%;" cellspacing="0" width="85%" cellpadding="0" border="0" align="center">
+  <tr>
+    <td class="pad20">
+      <table class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:100%;" cellspacing="0" width="560" cellpadding="0" border="0" align="center">
+        <tr>
+          <td align="left" style="font-family: Helvetica, Calibri, sans-serif; font-size: 24px; line-height: 30px; color: #1D1C1D; font-weight:bold;">专业套餐提供以下功能：
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table></td></tr></table></td></tr></table><table cellpadding="0" cellspacing="0" width="100%" role="presentation" class="stylingblock-content-wrapper" style="min-width: 100%; "><tr><td class="stylingblock-content-margin-cell" style="padding: 0px 32px; "><table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="background-color: #F4EDE4; min-width: 100%; " class="stylingblock-content-wrapper"><tr><td style="padding: 16px 0px 32px; " class="stylingblock-content-wrapper camarker-inner"><table align="center" class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:85%;" cellpadding="0" cellspacing="0" border="0" width="85%">
+  <tr>
+    <td class="pad20">
+      <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td align="center" width="10%" class="padRight10" style="padding-top:18px;" valign="top">
+            <img src="https://image.email.slackhq.com/lib/fe5515707c610d7b7312/m/1/message_icon_whitebg.png" width="50" border="0" style="max-width:50px;" alt="">
+          </td>
+          <td align="left" width="90%" class="noLRpad padTop16" style="font-family: Helvetica, Calibri, sans-serif; font-size: 14px; line-height: 18px; color: #1D1C1D; padding-left:8px; padding-top:18px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="left" width="90%" style="font-family: Helvetica, Calibri, sans-serif; font-size: 18px; line-height: 24px; color: #1D1C1D; font-weight:bold; ">
+                  可搜索消息历史记录
+                </td>
+              </tr>
+              <tr>
+                <td align="left" width="90%" style="font-family: Helvetica, Calibri, sans-serif; font-size: 16px; line-height: 24px; color: #1D1C1D;">
+                  解锁贵组织消息和文件历史记录的完整上下文，而不仅局限于过去 90 天
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      <table style="border-spacing:0;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;" width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
+        <tr>
+          <td class="pad20" style="border-collapse:collapse;text-align:left;vertical-align:top; padding:16px 0px;">
+            <table align="center" style="border-spacing:0;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt; width:100%;" cellspacing="0" cellpadding="0" border="0" class="container">
+              <tr>
+                <td style="font-size:1px;height:1px;line-height:1px;border-collapse:collapse;text-align:left;vertical-align:top;" height="1">&nbsp;
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td align="center" width="10%" class="padRight10 padTop16" style="padding-top:0px;" valign="top">
+            <img src="https://image.email.slackhq.com/lib/fe5515707c610d7b7312/m/1/slackconnect_icon_whitebg.png" width="50" border="0" style="max-width:50px;" alt="">
+          </td>
+          <td align="left" width="90%" class="noLRpad padTop16" style="font-family: Helvetica, Calibri, sans-serif; font-size: 14px; line-height: 18px; color: #1D1C1D; padding-left:8px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="left" width="90%" style="font-family: Helvetica, Calibri, sans-serif; font-size: 18px; line-height: 24px; color: #1D1C1D; font-weight:bold;">
+                  与外部组织安全协作
+                </td>
+              </tr>
+              <tr>
+                <td align="left" width="90%" style="font-family: Helvetica, Calibri, sans-serif; font-size: 16px; line-height: 24px; color: #1D1C1D;">
+                  创建 Slack Connect 频道，以便在你的 Slack 工作区内与贵组织外的公司或访客无缝沟通
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      <table style="border-spacing:0;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;" width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
+        <tr>
+          <td class="pad20" style="border-collapse:collapse;text-align:left;vertical-align:top; padding:16px 0px;">
+            <table align="center" style="border-spacing:0;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt; width:100%;" cellspacing="0" cellpadding="0" border="0" class="container">
+              <tr>
+                <td style="font-size:1px;height:1px;line-height:1px;border-collapse:collapse;text-align:left;vertical-align:top;" height="1">&nbsp;
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td align="center" width="10%" class="padTop16 padRight10" style="padding-top:0px" valign="top">
+            <img src="https://image.email.slackhq.com/lib/fe5515707c610d7b7312/m/1/huddles_icon_whitebg.png" width="50" border="0" style="max-width:50px;" alt="">
+          </td>
+          <td align="left" width="90%" class="noLRpad padTop16" style="font-family: Helvetica, Calibri, sans-serif; font-size: 14px; line-height: 18px; color: #1D1C1D; padding-left:8px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="left" width="90%" style="font-family: Helvetica, Calibri, sans-serif; font-size: 18px; line-height: 24px; color: #1D1C1D; font-weight:bold;">
+                  多人视频通话
+                </td>
+              </tr>
+              <tr>
+                <td align="left" width="90%" style="font-family: Helvetica, Calibri, sans-serif; font-size: 16px; line-height: 24px; color: #1D1C1D;">
+                  使用群抱团与多达 50 个人进行视频通话和屏幕共享
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      <table style="border-spacing:0;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;" width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
+        <tr>
+          <td class="pad20" style="border-collapse:collapse;text-align:left;vertical-align:top; padding:16px 0px;">
+            <table align="center" style="border-spacing:0;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt; width:100%;" cellspacing="0" cellpadding="0" border="0" class="container">
+              <tr>
+                <td style="font-size:1px;height:1px;line-height:1px;border-collapse:collapse;text-align:left;vertical-align:top;" height="1">&nbsp;
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td align="center" width="10%" class="padTop16 padRight10" style="padding-top:0px" valign="top">
+            <img src="https://image.email.slackhq.com/lib/fe5515707c610d7b7312/m/1/canvas_icon_whitebg.png" width="50" border="0" style="max-width:50px;" alt="">
+          </td>
+          <td align="left" width="90%" class="noLRpad padTop16" style="font-family: Helvetica, Calibri, sans-serif; font-size: 14px; line-height: 18px; color: #1D1C1D; padding-left:8px;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="left" width="90%" style="font-family: Helvetica, Calibri, sans-serif; font-size: 18px; line-height: 24px; color: #1D1C1D; font-weight:bold;">
+                  创建文档并开展协作
+                </td>
+              </tr>
+              <tr>
+                <td align="left" width="90%" style="font-family: Helvetica, Calibri, sans-serif; font-size: 16px; line-height: 24px; color: #1D1C1D;">
+                  利用无限量画板和 30 天的版本历史记录来组织和整理信息
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table></td></tr></table></td></tr></table><table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="background-color: transparent; min-width: 100%; " class="stylingblock-content-wrapper"><tr><td style="padding: 32px 0px 0px; " class="stylingblock-content-wrapper camarker-inner"><table class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:85%;" cellspacing="0" width="85%" cellpadding="0" border="0" align="center">
+  <tr>
+    <td class="pad20">
+      <table class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:100%;" cellspacing="0" width="560" cellpadding="0" border="0" align="center">
+        <tr>
+          <td align="left" style="font-family: Helvetica, Calibri, sans-serif; font-size: 16px; line-height: 24px; color: #1D1C1D; font-weight:normal;">请访问我们的<a href="https://slack.com/pricing/" style="text-decoration:underline;color:#2F8AB7;" target="_blank">定价页面</a>比较各种套餐，并查看 Slack 专业套餐所含功能的完整列表。如对这项限时优惠有任何具体问题，请<a href="https://tinyspeck.slack.com/help/requests/new" style="text-decoration:underline;color:#2F8AB7;" target="_blank">联系我们的客服</a>。
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table></td></tr></table><table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="background-color: transparent; min-width: 100%; " class="stylingblock-content-wrapper"><tr><td style="padding: 32px 0px 0px; " class="stylingblock-content-wrapper camarker-inner"><table class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:85%;" cellspacing="0" width="85%" cellpadding="0" border="0" align="center">
+  <tr>
+    <td class="pad20">
+      <table class="responsive-table" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;width:100%;" cellspacing="0" width="560" cellpadding="0" border="0" align="center">
+        <tr>
+          <td align="left" style="font-family: Helvetica, Calibri, sans-serif; font-size: 12px; line-height: 18px; color: #1D1C1D; font-weight:normal;">*在本次限时促销中，我们将为 Slack 专业套餐提供最多连续 3 个月的五折优惠。适用对象：兑换优惠时使用 Slack 免费套餐的团队。通过这封电子邮件即可获得此项优惠。当你单击这封电子邮件中的“兑换优惠”链接进入套餐的结账页面时，此项优惠将自动生效。此项优惠不能与其他优惠同时使用。每个工作区只有一次优惠兑换机会。符合条件的工作区可在<a style="font-size: 12px; line-height: 20px; color: #1D1C1D; font-weight:normal;text-decoration: none;">太平洋标准时间 2024 年 1 月 31 日晚上 11:59</a> 之前兑换此项优惠。如需了解更多详情，请单击<a href="https://slack.com/checkout/" alias="" style="text-decoration:underline;color:#2F8AB7;" target="_blank">此处</a>。
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table></td></tr></table>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </td>
+                                </tr>
+                              </table>
+                            </div>
+                          </td>
+                        </tr>
+                        <!---->
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center"  style="font-family:Courier,arial; font-size:12px; color:#000000;"> <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner">
+
+
+  <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner">
+      <style type="text/css">
+  .appleLinks_bfbfbf {
+    color: #bfbfbf;
+    text-decoration: none;
+  }
+</style>
+<table class="container" style="width:100%;" cellspacing="0" cellpadding="0" border="0" align="center">
+  <tr>
+    <td style="padding:20px 0px 20px 0px;" align="center">
+      <table class="container" style="width:560px;" cellspacing="0" cellpadding="0" border="0" align="center">
+        <tr>
+          <td style="padding:0px 20px;" align="center">
+                        <table class="container" width="100%" cellspacing="0" cellpadding="0" border="0" align="left">
+              <tr>
+                <td style="padding-top: 48px;" align="left">
+                  <a href="https://click.email.slackhq.com/?qs=b269d573db06c39697f06ded04d77cf7825db2c058a66961b00cdee9239f5eedf65a5a6b1b40b040bd12f7cd80c4c2cd4583643d7eb93457" target="_blank" ><img src="http://image.email.slackhq.com/lib/fe5515707c610d7b7312/m/1/099677a0-fea1-4183-9b52-1819ba762eba.png" alt="Slack" style="display: block; max-width:40px;" width="40" border="0"></a>
+                </td>
+                <td style="padding:48px 0px 0px 0px;" align="right">
+               <table cellspacing="0" cellpadding="0" border="0" align="right">
+                    <tr>
+                      <td class="mobilePadding" style="padding:0px 15px;">
+                        <a href="https://click.email.slackhq.com/?qs=b269d573db06c396cda1480804576a425eb25bbc3d714a21924f830cd3428bc5efc3c862d239fe8ddc737e5c0d785761fe66d5cd53c20b50" target="_blank" ><img src="https://image.email.slackhq.com/lib/fe5515707c610d7b7312/m/2/dd1c00d3-8e48-47b9-a184-14c3f0dc5103.png" alt="Twitter" style="display:block;" width="30" border="0"></a>
+                      </td>
+                      <td class="mobilePadding" style="padding:0px 15px;">
+                      <a href="https://click.email.slackhq.com/?qs=b269d573db06c396982972c378cad04101b94b1d7ef653b98ae0d7901ed95c22ab232232299230693752d4149cd511c54cdc5bff94631bf0" target="_blank" ><img src="https://image.email.slackhq.com/lib/fe5515707c610d7b7312/m/2/cb2a4233-ae6b-4cee-8761-44e0dc01a839.png" alt="Facebook" style="display:block;" width="30" border="0"></a>
+                      </td>
+                      <td class="mobilePadding" style="padding:0px 15px;">
+                        <a href="https://click.email.slackhq.com/?qs=b269d573db06c396b62b5398fa51bc18c86b70c7b99e5802d083c6b18b7b7af431f83d081e14803a10547a4d5ab3d522b74e72626ec90198" target="_blank" ><img src="https://image.email.slackhq.com/lib/fe5515707c610d7b7312/m/3/81739035-db75-45d1-a33f-5acb0e30dbd9.png" alt="Instagram" style="display:block;" width="30" border="0"></a>
+                      </td>
+                      <td class="padLeft10" style="padding:0px 0px 0px 15px;">
+                        <a href="https://click.email.slackhq.com/?qs=b269d573db06c396a4e8d2b17a0b100b6641b19f2d9a03b9aa5a79c66ad802e3f2e1c93ab9cb4e2d48c9e2a5e1b4ee9c7992f8163a9015aa" target="_blank" ><img src="https://image.email.slackhq.com/lib/fe5515707c610d7b7312/m/2/83c59329-0895-43d2-a5a2-f113b1fa54f9.png" alt="LinkedIn" style="display:block;" width="30" border="0"></a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+            </td></tr><tr>
+          <td style="padding:0px 20px;" align="center">
+
+            <table class="container" width="100%" cellspacing="0" cellpadding="0" border="0" align="left">
+                             <tr>
+                <td class="mob-centermeblock" style="padding-top: 32px; padding-bottom:32px; font-family: Helvetica, Calibri, sans-serif; font-size: 16px; line-height: 24px; color: #1D1C1D;" align="left">
+<b>©2024 Slack Technologies, LLC，Salesforce 旗下公司。</b><br>
+<a style="color: #1D1C1D; text-decoration:none;">Salesforce Tower, 415 Mission Street, 3rd Floor, <br class="mobileshow">San Francisco, CA 94105, United States</a><br>
+ <a href="https://click.email.slackhq.com/?qs=b269d573db06c396a822869ddc7bad33bbae764e5d1c59007cd2682958507439261689af4b0c442db755640191c79e836314e8e6d98ac3a2" target="_blank" style="color: #005c95; text-decoration:underline; font-weight:400;">slack.com</a>
+                </td>
+              </tr>
+                                          <tr>
+<td style="font-family: Helvetica, Calibri, sans-serif; font-size: 0px; line-height: 0px; color: #1D1C1D; display:none;">
+Slack Technologies, Inc., <a style="color: #1D1C1D; text-decoration:none;">500 Howard Street, San Francisco, CA 94105 US</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:0px 0px 24px;" align="left">
+                  <table class="container" width="100%" cellspacing="0" cellpadding="0" border="0" align="left">
+                    <tr>
+                      <td class="block mob-centerme" style="font-size: 15px; line-height:24px; font-family: Helvetica, Calibri, sans-serif; color: #1D1C1D; padding-top: 0px; padding-bottom: 5px; font-weight:normal;" valign="top" align="left"> <a href="https://click.email.slackhq.com/?qs=b269d573db06c3968ea43d72c98ecf0eede74f40722c54adc6a233afd43c118b683207e668c4a2c90abddd9b20fb7c870b0f8edad0da4bb5ac2f8c4f35a75dd8"  target="_blank" class="dark-grey hover" style="color:#1D1C1D;text-decoration:none;">我们的博客</a></td>
+                      <td class="hide" style="font-size: 15px; line-height:24px; font-family: Helvetica, Calibri, sans-serif; color: #1D1C1D; padding-top: 0px; padding-bottom: 5px; font-weight:normal;" valign="top" align="center">&nbsp;|&nbsp;</td>
+                      <td class="block mob-centerme" style="font-size: 15px; line-height:24px; font-family: Helvetica, Calibri, sans-serif; color: #1D1C1D; padding-top: 0px; padding-bottom: 5px; font-weight:normal;" valign="top" align="center"> <a href="https://click.email.slackhq.com/?qs=b269d573db06c39673512fd7809672cd7d47c281bb522a0e21f0b21ea7abd97d8aa521ff2f0f87922321757aa88258176c373ddc969e8a4e2b599301fe3753de"  target="_blank" class="dark-grey hover" style="color:#1D1C1D;text-decoration:none;">取消订阅</a></td>
+                      <td class="hide" style="font-size: 15px; line-height:24px; font-family: Helvetica, Calibri, sans-serif; color: #1D1C1D; padding-top: 0px; padding-bottom: 5px; font-weight:normal;" valign="top" align="center">&nbsp;|&nbsp;</td>
+
+                      <td class="block mob-centerme" style="font-size: 15px; line-height:24px; font-family: Helvetica, Calibri, sans-serif; color: #1D1C1D; padding-top: 0px; padding-bottom: 5px; font-weight:normal;" valign="top" align="center"> <a href="https://click.email.slackhq.com/?qs=b269d573db06c396ba163daec78d9959d2c6f75748a44d5dd871ae36093ab0e9ea62b59857066138d2f832dbeeaab6e3c60bd7b668c6c710"  target="_blank" class="dark-grey hover" style="color:#1D1C1D;text-decoration:none;">政策</a></td>
+                      <td class="hide" style="font-size: 15px; line-height:24px; font-family: Helvetica, Calibri, sans-serif; color: #1D1C1D; padding-top: 0px; padding-bottom: 5px; font-weight:normal;" width="55%" valign="top" align="center">&nbsp;</td>
+</tr>
+                  </table>
+<table class="container" width="100%" cellspacing="0" cellpadding="0" border="0" align="left">
+                    <tr>
+                      <td class="block mob-centerme" style="font-size: 15px; line-height:24px; font-family: Helvetica, Calibri, sans-serif; color: #1D1C1D; padding-top: 0px; padding-bottom: 5px; font-weight:normal;" valign="top" align="left"> <a href="https://click.email.slackhq.com/?qs=b269d573db06c396b523d78c392b935c909b15775f960a94caee37b3045561ce1e4d72ec259bc39e19c5c626b5dfec5cdb62bebac3e0a26e"  target="_blank" class="dark-grey hover" style="color:#1D1C1D; text-decoration:none;">帮助中心 </a></td>
+        <td class="hide" style="font-size: 15px; line-height:24px; font-family: Helvetica, Calibri, sans-serif; color: #1D1C1D; padding-top: 0px; padding-bottom: 5px; font-weight:normal;" valign="top" align="left">&nbsp;&nbsp;|&nbsp;&nbsp;</td>
+<td class="block mob-centerme" style="font-size: 15px; line-height:24px; font-family: Helvetica, Calibri, sans-serif; color: #1D1C1D; padding-top: 0px; padding-bottom: 5px; font-weight:normal;" valign="top" align="center"> <a href="https://click.email.slackhq.com/?qs=57a884e2e2e346b1f9a4d1413da60a12eb9e684058de40b2eb9d83afd30ef406116e30ef56f772a44c83671801faa5c8c861d316337d33d0"  target="_blank" class="dark-grey hover" style="color:#1D1C1D; text-decoration:none;">Slack 社区 </a></td>
+
+<td class="hide" style="font-size: 15px; line-height:24px; font-family: Helvetica, Calibri, sans-serif; color: #1D1C1D; padding-top: 0px; padding-bottom: 5px; font-weight:normal;" width="67%" valign="top" align="center">&nbsp;</td>
+
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+<td class="mob-centerme" style="font-family: Helvetica, Calibri, sans-serif; font-size: 12px; line-height: 16px; color: #1D1C1D;" align="left">
+保留所有权利。各商标由各自的所有者所有。
+                </td>
+              </tr>
+            </table>
+              </td>
+            </tr>
+      </table>
+    </td>
+  </tr>
+</table></td></tr></table>
+</td></tr></table>
+            </td>
+          </tr>
+        </table>
+                                  </td>
+                                </tr>
+                              </table>
+      </div>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<table cellspacing="0" cellpadding="0" border="0" class="container" width="100%" align="center">
+<tr>
+    <td align="center" style="font-size: 12px; font-family: Helvetica, Calibri, sans-serif; color:#ffffff;"> <a href="https://view.email.slackhq.com/?qs=f0ef22a6c90ba63cd4fbdf6fbf3b3a13ccde0cc18e1ff6d0623faf33f5bbc6e6dd8ae603f972101269df26e7031be3dda5f2ef29b6db133b5e26f06c726fe41dc646c3dec2a74341430ca75a0349f6bd" style="font-size: 12px; font-family: Helvetica, Calibri, sans-serif; color:#ffffff;">View in browser</a></td>
+  </tr>
+</table>
+<img src="https://click.email.slackhq.com/open.aspx?ffcb10-fe9a13777566047974-fe2411747360067b721479-fe5515707c610d7b7312-ff6a157374-fe1a10797c660c74771274-ff3916717567&d=10188&bmt=0" width="1" height="1" alt="">
+</body>
+</html>

@@ -1,13 +1,5 @@
-// 邮件数据模型
-export interface Email {
-  id: string;
-  topic: string;
-  sender: string;
-  icon: string;
-  date: string;
-  code: string;
-  html: string;
-}
+import { Email } from "@/types";
+import { getEmailTemplate } from "./actions";
 
 // 示例邮件数据
 export const emails: Email[] = [
@@ -15,6 +7,7 @@ export const emails: Email[] = [
     id: "amazon-1",
     topic: "Amazon 注册成功",
     sender: "service@amazon.com",
+    recipient: "user@example.com",
     icon: "https://www.amazon.com/favicon.ico",
     date: "2023-06-10 14:30",
     code: "842913",
@@ -42,6 +35,7 @@ export const emails: Email[] = [
     id: "google-1",
     topic: "Google 安全验证",
     sender: "no-reply@google.com",
+    recipient: "user@example.com",
     icon: "https://www.google.com/favicon.ico",
     date: "2023-06-15 09:45",
     code: "195824",
@@ -69,6 +63,7 @@ export const emails: Email[] = [
     id: "github-1",
     topic: "GitHub 双重认证",
     sender: "noreply@github.com",
+    recipient: "developer@example.com",
     icon: "https://github.com/favicon.ico",
     date: "2023-06-20 16:15",
     code: "721038",
@@ -92,24 +87,84 @@ export const emails: Email[] = [
       </div>
     `,
   },
+  {
+    id: "trae",
+    topic: "Trae 注册成功",
+    sender: "service@trae.com",
+    recipient: "user@example.com",
+    icon: "https://www.trae.com/favicon.ico",
+    date: "2023-06-25 10:30",
+    code: "123456",
+    html: `
+      <div>
+        <h1>Trae 注册成功</h1>
+        <p>感谢您注册 Trae 账户。请使用以下验证码完成注册流程：</p>
+        <div>123456</div>
+      </div>
+    `,
+  },
+  {
+    id: "fengzi",
+    topic: "Fengzi 注册成功",
+    sender: "service@fengzi.com",
+    recipient: "user@example.com",
+    icon: "https://www.fengzi.com/favicon.ico",
+    date: "2023-06-25 10:30",
+    code: "123456",
+    html: `
+      <div>
+        <h1>Fengzi 注册成功</h1>
+        <p>感谢您注册 Fengzi 账户。请使用以下验证码完成注册流程：</p>
+        <div>123456</div>
+      </div>`,
+  },
+  {
+    id: "binance",
+    topic: "Binance 注册成功",
+    sender: "service@binance.com",
+    recipient: "user@example.com",
+    icon: "https://www.binance.com/favicon.ico",
+    date: "2023-06-25 10:30",
+    code: "123456",
+    html: `
+      <div>
+        <h1>Binance 注册成功</h1>
+        <p>感谢您注册 Binance 账户。请使用以下验证码完成注册流程：</p>
+        <div>123456</div>
+      </div>
+    `,
+  },
+  {
+    id: "slack",
+    topic: "Slack 注册成功",
+    sender: "service@slack.com",
+    recipient: "user@example.com",
+    icon: "https://www.slack.com/favicon.ico",
+    date: "2023-06-25 10:30",
+    code: "123456",
+    html: `
+      <div>
+        <h1>Slack 注册成功</h1>
+        <p>感谢您注册 Slack 账户。请使用以下验证码完成注册流程：</p>
+        <div>123456</div>
+      </div>
+    `,
+  },
 ];
 
 // 根据 ID 获取邮件
-export function getEmailById(id: string): Email | undefined {
-  return emails.find(email => email.id === id);
+export function getEmailById(id: string): Email | null {
+  return emails.find((email) => email.id === id) || null;
 }
 
-// 获取所有邮件
-export function getAllEmails(): Email[] {
-  return emails;
-}
+// 获取邮件（包含从文件加载的 HTML）
+export async function getEmailWithHtml(id: string): Promise<Email | null> {
+  const email = getEmailById(id);
+  if (!email) return null;
 
-// 将邮件转换为历史记录项
-export function emailsToHistoryItems() {
-  return emails.map(email => ({
-    id: email.id,
-    title: email.topic,
-    content: `${email.sender} · 验证码: ${email.code}`,
-    time: email.date.split(' ')[1], // 只取时间部分
-  }));
+  const html = await getEmailTemplate(id);
+  return {
+    ...email,
+    html: html || email.html, // 如果文件加载失败，使用默认的 HTML
+  };
 }

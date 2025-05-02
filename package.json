@@ -30,6 +30,7 @@
     "@heroui/theme": "2.4.13",
     "@heroui/toast": "^2.0.7",
     "@heroui/tooltip": "^2.2.14",
+    "@monaco-editor/react": "^4.7.0",
     "@react-aria/ssr": "3.9.7",
     "@react-aria/visually-hidden": "3.8.21",
     "clsx": "2.1.1",
@@ -39,7 +40,9 @@
     "next-themes": "^0.4.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "zustand": "^5.0.3"
+    "react-error-boundary": "^5.0.0",
+    "react-resizable-panels": "^3.0.0",
+    "swr": "^2.3.3"
   },
   "devDependencies": {
     "@react-types/shared": "3.25.0",

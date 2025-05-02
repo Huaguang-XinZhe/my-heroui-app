@@ -22,16 +22,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  emailModal, // 解构重命名语法❗
 }: {
   children: React.ReactNode;
+  emailModal: React.ReactNode;
 }) {
   return (
     <html suppressHydrationWarning lang="zh-CN">
       <head />
       <body className={clsx("font-sans antialiased", fontSans.variable)}>
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <Background>{children}</Background>
-          {/* {children} */}
+          <Background>
+            {children}
+            {emailModal}
+          </Background>
         </Providers>
       </body>
     </html>

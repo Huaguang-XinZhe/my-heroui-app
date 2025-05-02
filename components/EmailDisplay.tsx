@@ -14,7 +14,6 @@ interface EmailDisplayProps {
   topic: string;
   date: string;
   code: string;
-  html?: string;
 }
 
 export function EmailDisplay({
@@ -24,7 +23,6 @@ export function EmailDisplay({
   topic,
   date,
   code,
-  html = "",
 }: EmailDisplayProps) {
   return (
     <Card className="flex flex-1 flex-col overflow-hidden border border-dark-border bg-dark-card p-4 sm:p-6">

@@ -17,7 +17,13 @@ export default function HomePage() {
 
           {/* 收件箱 */}
           <EmailDisplay
-            id="amazon-1"
+            // id="amazon-1"
+            // id="fengzi"
+            // id="trae"
+            // id="google-1"
+            // id="github-1"
+            id="binance"
+            // id="slack"
             sender="service@amazon.com"
             icon="https://www.amazon.com/favicon.ico"
             topic="Amazon 注册成功"

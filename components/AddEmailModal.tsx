@@ -29,11 +29,11 @@ export function AddEmailModal({ isOpen, onClose }: AddEmailModalProps) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      backdrop="blur"
+      // backdrop="blur"
       classNames={{
         base: "w-[90%] max-w-[600px] bg-dark-card",
         body: "px-6 py-4",
-        closeButton: "top-5 end-4",
+        closeButton: "top-5 end-4 hover:bg-dark-hover",
       }}
     >
       <ModalContent>
