@@ -1,65 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { StatusBadge } from "./StatusBadge";
+import { useState, useEffect } from "react";
+import { ProtocolBadge } from "./ProtocolBadge";
 import { AddEmailModal } from "./AddEmailModal";
 import { IconAt, IconPlus } from "./icons/icons";
 import { Card, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { ScrollShadow } from "@heroui/scroll-shadow";
 import { SearchInput } from "./SearchInput";
-
-interface EmailAccount {
-  id: string;
-  email: string;
-}
-
-const emailAccounts: EmailAccount[] = [
-  {
-    id: "1",
-    email: "example@gmail.com",
-  },
-  {
-    id: "2",
-    email: "user@outlook.com",
-  },
-  {
-    id: "3",
-    email: "longemailaddress123456@qq.com",
-  },
-  {
-    id: "4",
-    email: "developer@github.com",
-  },
-  {
-    id: "5",
-    email: "contact@company.org",
-  },
-  {
-    id: "6",
-    email: "support@heroui.dev",
-  },
-  {
-    id: "7",
-    email: "newsletter@medium.com",
-  },
-  {
-    id: "8",
-    email: "notifications@twitter.com",
-  },
-  {
-    id: "9",
-    email: "info@linkedin.com",
-  },
-  {
-    id: "10",
-    email: "noreply@amazon.com",
-  },
-  {
-    id: "11",
-    email: "admin@heroicons.com",
-  },
-];
+import { getCachedEmails } from "@/utils/emailCache";
+import { CachedEmailInfo } from "@/types/email";
 
 // 解析邮箱地址，返回用户名和域名
 function parseEmail(
@@ -96,10 +46,22 @@ function isEmailTruncated(email: string): boolean {
 export function EmailSidebar() {
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeAccountId, setActiveAccountId] = useState<string>("1");
+  const [activeAccountId, setActiveAccountId] = useState<string | null>(null);
+  const [emailAccounts, setEmailAccounts] = useState<CachedEmailInfo[]>([]);
 
-  const handleSwitchAccount = (id: string) => {
-    setActiveAccountId(id);
+  // 组件挂载时加载邮箱数据
+  useEffect(() => {
+    const cachedEmails = getCachedEmails();
+    setEmailAccounts(cachedEmails);
+  }, []);
+
+  const handleSwitchAccount = (email: string) => {
+    setActiveAccountId(email);
+  };
+
+  const handleAddEmailSuccess = (emails: CachedEmailInfo[]) => {
+    // 添加邮箱成功后刷新邮箱列表
+    setEmailAccounts(emails);
   };
 
   // 过滤邮箱账户并预处理显示数据
@@ -136,33 +98,45 @@ export function EmailSidebar() {
       {/* 邮箱列表 */}
       <ScrollShadow hideScrollBar className="flex-1">
         <div className="space-y-2 p-2">
-          {processedAccounts.map((account) => (
-            <Card
-              isPressable
-              isDisabled={account.id === activeAccountId}
-              onPress={() => handleSwitchAccount(account.id)}
-              key={account.id}
-              shadow="none"
-              radius="lg"
-              className="w-full bg-transparent hover:bg-indigo-300/10"
-            >
-              <CardBody className="flex flex-row items-center justify-between py-2 pl-4 pr-3">
-                <div className="min-w-0 flex-1">
-                  <h3
-                    className="truncate text-sm font-medium text-gray-200"
-                    title={account.email}
-                  >
-                    {account.displayEmail}
-                  </h3>
-                </div>
-                <div className="ml-2 shrink-0">
-                  {account.id === activeAccountId && (
-                    <StatusBadge text="Current" color="success" size="md" />
-                  )}
-                </div>
-              </CardBody>
-            </Card>
-          ))}
+          {processedAccounts.length === 0 ? (
+            <div className="py-8 text-center text-gray-400">
+              <p className="text-sm">暂无邮箱账户</p>
+              <p className="mt-1 text-xs text-gray-500">点击下方按钮添加邮箱</p>
+            </div>
+          ) : (
+            processedAccounts.map((account) => (
+              <Card
+                isPressable
+                isDisabled={account.email === activeAccountId}
+                onPress={() => handleSwitchAccount(account.email)}
+                key={account.email}
+                shadow="none"
+                radius="lg"
+                className={`w-full bg-transparent hover:bg-indigo-300/10 ${
+                  account.email === activeAccountId
+                    ? "outline outline-2 outline-blue-500 ring-1"
+                    : ""
+                }`}
+              >
+                <CardBody className="flex flex-row items-center justify-between py-2 pl-4 pr-4">
+                  {/* 邮箱地址 */}
+                  <div className="min-w-0 flex-1">
+                    <h3
+                      className="truncate text-sm font-medium text-gray-200"
+                      title={account.email}
+                    >
+                      {account.displayEmail}
+                    </h3>
+                  </div>
+
+                  {/* 协议标签 */}
+                  <div className="ml-3 shrink-0">
+                    <ProtocolBadge protocolType={account.protocolType} />
+                  </div>
+                </CardBody>
+              </Card>
+            ))
+          )}
         </div>
       </ScrollShadow>
 
@@ -177,7 +151,11 @@ export function EmailSidebar() {
       </Button>
 
       {/* 添加邮箱模态框 */}
-      <AddEmailModal isOpen={showModal} onClose={() => setShowModal(false)} />
+      <AddEmailModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSuccess={handleAddEmailSuccess}
+      />
     </aside>
   );
 }
