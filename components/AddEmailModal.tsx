@@ -9,8 +9,7 @@ import {
   ModalFooter,
 } from "@heroui/modal";
 import { Button } from "@heroui/button";
-import { IconPlusCircle, IconClose, IconCheck } from "./icons/icons";
-import { NumberedListItem } from "./NumberedListItem";
+import { IconPlusCircle, IconClose, IconCheck, IconEye } from "./icons/icons";
 import { ProtocolSelector } from "./ProtocolSelector";
 import { ProtocolType, CachedEmailInfo } from "@/types/email";
 import {
@@ -28,6 +27,7 @@ import {
 } from "@/utils/toast";
 import { FailureDetailsModal } from "./FailureDetailsModal";
 import { FromOthersResult, ErrorResult } from "@/types/email";
+import { useFormatGuide } from "@/contexts/FormatGuideContext";
 
 interface AddEmailModalProps {
   isOpen: boolean;
@@ -40,6 +40,8 @@ export function AddEmailModal({
   onClose,
   onSuccess,
 }: AddEmailModalProps) {
+  const { showFormatGuide, toggleFormatGuide, setShowFormatGuide } =
+    useFormatGuide();
   const [emailInput, setEmailInput] = useState("");
   const [protocolType, setProtocolType] = useState<ProtocolType>("UNKNOWN");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,6 +144,8 @@ export function AddEmailModal({
         // 清空输入并关闭模态框
         setEmailInput("");
         setProtocolType("UNKNOWN");
+        // 成功后隐藏格式说明
+        setShowFormatGuide(false);
         onSuccess?.(successfulEmails);
         onClose();
       } else {
@@ -172,6 +176,8 @@ export function AddEmailModal({
     if (!isSubmitting) {
       setEmailInput("");
       setProtocolType("UNKNOWN");
+      // 关闭弹窗时隐藏格式说明
+      setShowFormatGuide(false);
       onClose();
     }
   };
@@ -208,21 +214,24 @@ export function AddEmailModal({
               </div>
               <textarea
                 className="h-40 w-full resize-none rounded-xl border border-dark-border bg-dark-input px-4 py-3 text-gray-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="每行一条四件套或 refreshToken"
+                placeholder="每行一条邮箱数据，一般为四件套或六件套，邮箱和刷新令牌必须，其余可选，以 ---- 分隔"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
                 disabled={isSubmitting}
               ></textarea>
             </div>
 
-            <div className="mb-2 rounded-lg border-l-4 border-indigo-500 bg-indigo-900/20 p-4 text-sm text-gray-300">
-              <p className="mb-2 font-medium text-indigo-400">格式说明：</p>
-              <NumberedListItem number={1} className="mb-1">
-                完整四件套格式：邮箱----密码----clientId----refreshToken
-              </NumberedListItem>
-              <NumberedListItem number={2}>
-                简化格式：邮箱----refreshToken（clientId 默认为雷鸟）
-              </NumberedListItem>
+            {/* 格式说明按钮 */}
+            <div className="mt-3 flex justify-center">
+              <Button
+                variant="flat"
+                size="sm"
+                onPress={toggleFormatGuide}
+                startContent={<IconEye className="h-4 w-4" />}
+                className="bg-dark-hover hover:bg-dark-border"
+              >
+                {showFormatGuide ? "隐藏格式说明" : "查看格式说明"}
+              </Button>
             </div>
           </ModalBody>
 

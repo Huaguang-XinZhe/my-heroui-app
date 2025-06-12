@@ -8,10 +8,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@heroui/accordion": "^2.2.18",
     "@heroui/alert": "^2.2.20",
     "@heroui/avatar": "^2.2.13",
     "@heroui/button": "2.2.17",
     "@heroui/card": "^2.2.16",
+    "@heroui/checkbox": "^2.3.20",
     "@heroui/chip": "^2.2.16",
     "@heroui/code": "2.2.12",
     "@heroui/divider": "^2.2.11",

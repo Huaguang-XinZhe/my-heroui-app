@@ -27,6 +27,8 @@ import {
   FaTrashCan,
   FaBell,
   FaBellSlash,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa6";
 import { TbInfoCircle } from "react-icons/tb";
 
@@ -127,4 +129,12 @@ export const IconSubscribe = ({ className }: IconProps) => (
 
 export const IconUnsubscribe = ({ className }: IconProps) => (
   <FaBellSlash className={className} />
+);
+
+export const IconChevronLeft = ({ className }: IconProps) => (
+  <FaChevronLeft className={className} />
+);
+
+export const IconChevronRight = ({ className }: IconProps) => (
+  <FaChevronRight className={className} />
 );

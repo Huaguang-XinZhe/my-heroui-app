@@ -69,8 +69,9 @@ export function EmailSidebar({
   };
 
   const handleAddEmailSuccess = (emails: CachedEmailInfo[]) => {
-    // 添加邮箱成功后刷新邮箱列表
-    setEmailAccounts(emails);
+    // 添加邮箱成功后刷新邮箱列表，从缓存中重新读取所有邮箱
+    const updatedEmails = getCachedEmails();
+    setEmailAccounts(updatedEmails);
   };
 
   // 过滤邮箱账户并预处理显示数据
@@ -91,10 +92,17 @@ export function EmailSidebar({
 
   return (
     <aside className="hidden overflow-hidden rounded-xl border border-dark-border bg-dark-card p-4 shadow-lg md:flex md:flex-col">
-      <h2 className="mb-4 flex items-center text-lg font-semibold text-indigo-500">
-        <IconAt className="mr-2 mt-0.5" />
-        我的邮箱
-      </h2>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="flex items-center text-lg font-semibold text-indigo-500">
+          <IconAt className="mr-2 mt-0.5" />
+          我的邮箱
+        </h2>
+        <div className="flex items-center rounded-full bg-indigo-500/20 px-2 py-1">
+          <span className="text-sm font-medium text-indigo-400">
+            {emailAccounts.length}
+          </span>
+        </div>
+      </div>
 
       {/* 搜索框 */}
       <SearchInput

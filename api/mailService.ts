@@ -39,7 +39,7 @@ export async function batchAddAccounts(
     console.error("批量添加邮箱账户失败:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message.slice(0, 8) : "未知错误",
+      error: error instanceof Error ? error.message : "未知错误",
     };
   }
 }

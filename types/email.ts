@@ -19,6 +19,8 @@ export interface ParsedEmailData {
   password?: string;
   clientId?: string;
   refreshToken?: string;
+  secondaryEmail?: string;
+  secondaryPassword?: string;
 }
 
 /**
