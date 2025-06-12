@@ -24,6 +24,9 @@ import {
   FaRegClock,
   FaEye,
   FaCode,
+  FaTrashCan,
+  FaBell,
+  FaBellSlash,
 } from "react-icons/fa6";
 import { TbInfoCircle } from "react-icons/tb";
 
@@ -112,4 +115,16 @@ export const IconInfoCircle = ({ className, ...props }: IconProps) => (
 
 export const IconCode = ({ className }: IconProps) => (
   <FaCode className={className} />
+);
+
+export const IconTrash = ({ className }: IconProps) => (
+  <FaTrashCan className={className} />
+);
+
+export const IconSubscribe = ({ className }: IconProps) => (
+  <FaBell className={className} />
+);
+
+export const IconUnsubscribe = ({ className }: IconProps) => (
+  <FaBellSlash className={className} />
 );

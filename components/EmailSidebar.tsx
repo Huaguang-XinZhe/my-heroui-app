@@ -43,10 +43,17 @@ function isEmailTruncated(email: string): boolean {
   return parsed.username.length > 10;
 }
 
-export function EmailSidebar() {
+interface EmailSidebarProps {
+  onEmailSelect?: (email: string) => void;
+  selectedEmail?: string;
+}
+
+export function EmailSidebar({
+  onEmailSelect,
+  selectedEmail,
+}: EmailSidebarProps) {
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeAccountId, setActiveAccountId] = useState<string | null>(null);
   const [emailAccounts, setEmailAccounts] = useState<CachedEmailInfo[]>([]);
 
   // 组件挂载时加载邮箱数据
@@ -56,7 +63,9 @@ export function EmailSidebar() {
   }, []);
 
   const handleSwitchAccount = (email: string) => {
-    setActiveAccountId(email);
+    if (onEmailSelect) {
+      onEmailSelect(email);
+    }
   };
 
   const handleAddEmailSuccess = (emails: CachedEmailInfo[]) => {
@@ -81,7 +90,7 @@ export function EmailSidebar() {
     });
 
   return (
-    <aside className="hidden overflow-hidden rounded-xl border border-dark-border bg-dark-card p-4 shadow-lg md:flex md:w-72 md:flex-col">
+    <aside className="hidden overflow-hidden rounded-xl border border-dark-border bg-dark-card p-4 shadow-lg md:flex md:flex-col">
       <h2 className="mb-4 flex items-center text-lg font-semibold text-indigo-500">
         <IconAt className="mr-2 mt-0.5" />
         我的邮箱
@@ -97,9 +106,9 @@ export function EmailSidebar() {
 
       {/* 邮箱列表 */}
       <ScrollShadow hideScrollBar className="flex-1">
-        <div className="space-y-2 p-2">
+        <div className="h-full space-y-2 p-2">
           {processedAccounts.length === 0 ? (
-            <div className="py-8 text-center text-gray-400">
+            <div className="flex h-full flex-col items-center justify-center text-gray-400">
               <p className="text-sm">暂无邮箱账户</p>
               <p className="mt-1 text-xs text-gray-500">点击下方按钮添加邮箱</p>
             </div>
@@ -107,13 +116,13 @@ export function EmailSidebar() {
             processedAccounts.map((account) => (
               <Card
                 isPressable
-                isDisabled={account.email === activeAccountId}
+                isDisabled={account.email === selectedEmail}
                 onPress={() => handleSwitchAccount(account.email)}
                 key={account.email}
                 shadow="none"
                 radius="lg"
                 className={`w-full bg-transparent hover:bg-indigo-300/10 ${
-                  account.email === activeAccountId
+                  account.email === selectedEmail
                     ? "outline outline-2 outline-blue-500 ring-1"
                     : ""
                 }`}
