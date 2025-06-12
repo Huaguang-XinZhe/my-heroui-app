@@ -7,7 +7,8 @@ import {
   GetJunkMailResponse,
 } from "@/types/email";
 
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL =
+  "https://d06b-2408-8948-2010-bb7-9173-7389-1fec-5375.ngrok-free.app";
 
 /**
  * 批量添加邮箱账户
