@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { getCachedEmails } from "@/cache/emailCache";
+import { getCachedEmails, updateEmailFetchTime } from "@/cache/emailCache";
 import { getLatestMail, getJunkMail } from "@/api/mailService";
 import { MailStorageManager } from "@/utils/mailStorageUtils";
 import {
@@ -80,6 +80,9 @@ export function useEmailFetcher({
             console.error("存储邮件失败:", storageError);
             // 存储失败不影响邮件显示，继续执行
           }
+
+          // 更新邮箱的最后获取时间
+          updateEmailFetchTime(selectedEmail);
 
           setEmail(result.data.email);
           setHasFetched(true);

@@ -1,7 +1,9 @@
 "use client";
 
+import { MutableRefObject, useRef, useEffect } from "react";
 import { Card } from "@heroui/card";
 import { useEmailDisplay } from "@/hooks/useEmailDisplay";
+import { Email } from "@/types/email";
 import {
   EmailDisplayHeader,
   EmailDisplayLoading,
@@ -11,12 +13,29 @@ import {
   EmailContent,
   EmailSubscriptionStatus,
 } from "./email-display";
+import { EmailDisplayHeaderRef } from "./email-display/EmailDisplayHeader";
 
 interface EmailDisplayProps {
   selectedEmail?: string; // 选中的邮箱
+  cachedEmailContent?: Email | null;
+  onEmailFetched?: (email: Email) => void;
+  onSidebarRefresh?: () => void;
+  onTriggerCooldown?: (type: "inbox" | "junk") => void;
+  triggerCooldownRef?: MutableRefObject<
+    ((type: "inbox" | "junk") => void) | null
+  >;
 }
 
-export function EmailDisplay({ selectedEmail }: EmailDisplayProps) {
+export function EmailDisplay({
+  selectedEmail,
+  cachedEmailContent,
+  onEmailFetched,
+  onSidebarRefresh,
+  onTriggerCooldown,
+  triggerCooldownRef,
+}: EmailDisplayProps) {
+  const headerRef = useRef<EmailDisplayHeaderRef>(null);
+
   const {
     email,
     isLoading,
@@ -27,12 +46,30 @@ export function EmailDisplay({ selectedEmail }: EmailDisplayProps) {
     subscriptionState,
     handleSubscribe,
     handleUnsubscribe,
-  } = useEmailDisplay({ selectedEmail });
+  } = useEmailDisplay({
+    selectedEmail,
+    cachedEmailContent,
+    onEmailFetched,
+    onSidebarRefresh,
+    onTriggerCooldown,
+  });
+
+  // 将冷却触发函数暴露给父组件
+  useEffect(() => {
+    if (triggerCooldownRef) {
+      triggerCooldownRef.current = (type: "inbox" | "junk") => {
+        if (headerRef.current) {
+          headerRef.current.triggerCooldown(type);
+        }
+      };
+    }
+  }, [triggerCooldownRef]);
 
   return (
     <Card className="flex flex-1 shrink-0 flex-col overflow-hidden border border-dark-border bg-dark-card p-4 sm:p-6">
       {/* 头部区域 */}
       <EmailDisplayHeader
+        ref={headerRef}
         isLoading={isLoading}
         lastFetchType={lastFetchType}
         onFetchEmails={fetchEmails}

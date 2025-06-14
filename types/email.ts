@@ -65,6 +65,7 @@ export interface CachedEmailInfo {
   email: string;
   refreshToken: string;
   protocolType: ProtocolType;
+  lastFetchTime?: number;
 }
 
 /**

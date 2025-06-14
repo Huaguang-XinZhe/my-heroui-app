@@ -141,3 +141,54 @@ export function formatEmailDate(dateString: string): string {
     return dateString;
   }
 }
+
+/**
+ * 格式化获取时间显示
+ * - 当天：只显示时间 (如: 14:30)
+ * - 本周内：显示周几 (如: 周三)
+ * - 其他：显示具体日期 (如: 12-25)
+ */
+export function formatFetchTime(timestamp?: number): string {
+  if (!timestamp) return "未获取";
+
+  const now = new Date();
+  const fetchTime = new Date(timestamp);
+
+  // 检查是否是今天
+  const isToday =
+    now.getFullYear() === fetchTime.getFullYear() &&
+    now.getMonth() === fetchTime.getMonth() &&
+    now.getDate() === fetchTime.getDate();
+
+  if (isToday) {
+    // 今天：只显示时间
+    return fetchTime.toLocaleTimeString("zh-CN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  }
+
+  // 计算是否在本周内
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay()); // 本周日
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6); // 本周六
+  endOfWeek.setHours(23, 59, 59, 999);
+
+  if (fetchTime >= startOfWeek && fetchTime <= endOfWeek) {
+    // 本周内：显示周几
+    const weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+    return weekdays[fetchTime.getDay()];
+  }
+
+  // 其他：显示月-日
+  return fetchTime
+    .toLocaleDateString("zh-CN", {
+      month: "2-digit",
+      day: "2-digit",
+    })
+    .replace("/", "-");
+}

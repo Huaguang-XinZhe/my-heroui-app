@@ -56,3 +56,20 @@ export function clearEmailCache(): void {
     console.error("清空邮箱缓存失败:", error);
   }
 }
+
+/**
+ * 更新邮箱的最后获取时间
+ */
+export function updateEmailFetchTime(email: string): void {
+  try {
+    const cachedEmails = getCachedEmails();
+    const updatedEmails = cachedEmails.map((emailInfo) =>
+      emailInfo.email === email
+        ? { ...emailInfo, lastFetchTime: Date.now() }
+        : emailInfo,
+    );
+    setCachedEmails(updatedEmails);
+  } catch (error) {
+    console.error("更新邮箱获取时间失败:", error);
+  }
+}
