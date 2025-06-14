@@ -18,7 +18,7 @@ import {
   countValidEmailLines,
 } from "@/utils/emailParser";
 import { batchAddAccounts } from "@/api/mailService";
-import { addEmailsToCache } from "@/utils/emailCache";
+import { addEmailsToCache } from "@/cache/emailCache";
 import { filterNewEmails } from "@/utils/utils";
 import {
   showSuccessToast,

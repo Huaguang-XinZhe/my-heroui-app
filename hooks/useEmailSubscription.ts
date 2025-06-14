@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
 import { SubscriptionState } from "@/types/subscription";
-import { Email, MailRequestInfo } from "@/types/email";
+import { Email, MailRequestInfo, CachedEmailInfo } from "@/types/email";
 import { mailSubscriptionService } from "@/services/subscriptionService";
-import { getCachedEmails } from "@/utils/emailCache";
+import { getCachedEmails } from "@/cache/emailCache";
+import { MailStorageManager } from "@/utils/mailStorageUtils";
 import { showSuccessToast, showErrorToast, showInfoToast } from "@/utils/toast";
 
 interface UseEmailSubscriptionProps {
@@ -22,11 +23,21 @@ export function useEmailSubscription({
 
   // 处理新邮件接收
   const handleEmailReceived = useCallback(
-    (newEmail: Email) => {
+    async (newEmail: Email) => {
+      // 将邮件缓存到 IndexedDB 存储中
+      try {
+        await MailStorageManager.cacheMail(newEmail);
+        console.log(
+          `邮件已缓存到 IndexedDB: ${newEmail.subject} (收件人: ${newEmail.to.address})`,
+        );
+      } catch (error) {
+        console.error("缓存邮件失败:", error);
+      }
+
       setEmail(newEmail);
       showSuccessToast("收到新邮件", newEmail.subject);
     },
-    [setEmail],
+    [setEmail, selectedEmail],
   );
 
   // 处理订阅状态变化
@@ -50,7 +61,9 @@ export function useEmailSubscription({
 
     try {
       const cachedEmails = getCachedEmails();
-      const emailInfo = cachedEmails.find((e) => e.email === selectedEmail);
+      const emailInfo = cachedEmails.find(
+        (e: CachedEmailInfo) => e.email === selectedEmail,
+      );
 
       if (!emailInfo) {
         showErrorToast("订阅失败", "邮箱信息未找到");

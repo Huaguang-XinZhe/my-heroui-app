@@ -1,5 +1,5 @@
 import { MailInfo } from "@/types/email";
-import { getCachedEmails } from "./emailCache";
+import { getCachedEmails } from "../cache/emailCache";
 
 export function filterNewEmails(mailInfos: MailInfo[]): {
   newEmails: MailInfo[];

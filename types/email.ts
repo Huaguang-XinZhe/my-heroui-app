@@ -90,7 +90,7 @@ export interface EmailAddress {
  * 邮件数据
  */
 export interface Email {
-  id?: number;
+  id: string;
   subject: string;
   from: EmailAddress;
   to: EmailAddress;

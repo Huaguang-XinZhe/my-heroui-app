@@ -1,6 +1,7 @@
 import { useCallback } from "react";
-import { getCachedEmails } from "@/utils/emailCache";
+import { getCachedEmails } from "@/cache/emailCache";
 import { getLatestMail, getJunkMail } from "@/api/mailService";
+import { MailStorageManager } from "@/utils/mailStorageUtils";
 import {
   GetLatestMailRequest,
   GetJunkMailRequest,
@@ -68,7 +69,18 @@ export function useEmailFetcher({
           throw new Error(result.error || "获取邮件失败");
         }
 
-        if (result.data) {
+        if (result.data && result.data.email) {
+          // 将获取到的邮件存储到 IndexedDB
+          try {
+            await MailStorageManager.cacheMail(result.data.email);
+            console.log(
+              `邮件已存储到 IndexedDB: ${result.data.email.subject} (收件人: ${result.data.email.to.address}, 类型: ${type})`,
+            );
+          } catch (storageError) {
+            console.error("存储邮件失败:", storageError);
+            // 存储失败不影响邮件显示，继续执行
+          }
+
           setEmail(result.data.email);
           setHasFetched(true);
         }

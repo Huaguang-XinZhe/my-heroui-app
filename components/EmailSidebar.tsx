@@ -8,7 +8,7 @@ import { Card, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { ScrollShadow } from "@heroui/scroll-shadow";
 import { SearchInput } from "./SearchInput";
-import { getCachedEmails } from "@/utils/emailCache";
+import { getCachedEmails } from "@/cache/emailCache";
 import { CachedEmailInfo } from "@/types/email";
 
 // 解析邮箱地址，返回用户名和域名
