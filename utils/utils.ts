@@ -109,47 +109,48 @@ export function getFaviconUrl(email: string): string {
 }
 
 /**
- * 格式化邮件日期为易读格式
- * 处理两种格式：
- * 1. ISO 8601 格式：2025-05-30T05:41:58-07:00
- * 2. 简短格式：2025-04-21T17:45:28Z
+ * 解析邮箱地址，返回用户名和域名
  */
-export function formatEmailDate(dateString: string): string {
-  try {
-    // 尝试解析日期字符串
-    const date = new Date(dateString);
+export function parseEmail(
+  email: string,
+): { username: string; domain: string } | null {
+  const parts = email.split("@");
+  if (parts.length !== 2) return null;
 
-    // 检查日期是否有效
-    if (isNaN(date.getTime())) {
-      return dateString; // 如果解析失败，返回原字符串
-    }
-
-    // 获取本地时间
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; // getMonth() 返回 0-11
-    const day = date.getDate();
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-
-    // 格式化为 YYYY-M-D HH:MM
-    const formattedMinutes = minutes.toString().padStart(2, "0");
-    const formattedHours = hours.toString().padStart(2, "0");
-
-    return `${year}-${month}-${day} ${formattedHours}:${formattedMinutes}`;
-  } catch (error) {
-    // 如果出现任何错误，返回原字符串
-    return dateString;
-  }
+  return {
+    username: parts[0],
+    domain: parts[1],
+  };
 }
 
 /**
- * 格式化获取时间显示
- * - 当天：只显示时间 (如: 14:30)
- * - 本周内：显示周几 (如: 周三)
- * - 其他：显示具体日期 (如: 12-25)
+ * 辅助函数：截断邮箱地址，保留完整后缀
  */
-export function formatFetchTime(timestamp?: number): string {
-  if (!timestamp) return "未获取";
+export function truncateEmail(email: string): string {
+  const parsed = parseEmail(email);
+  if (!parsed) return email;
+
+  const { username, domain } = parsed;
+  if (username.length <= 10) return email;
+
+  return `${username.substring(0, 7)}...@${domain}`;
+}
+
+/**
+ * 检查邮箱是否被截断
+ */
+export function isEmailTruncated(email: string): boolean {
+  const parsed = parseEmail(email);
+  if (!parsed) return false;
+
+  return parsed.username.length > 10;
+}
+
+/**
+ * 格式化时间显示，返回显示信息和位置
+ */
+export function getTimeDisplay(timestamp?: number) {
+  if (!timestamp) return null;
 
   const now = new Date();
   const fetchTime = new Date(timestamp);
@@ -162,33 +163,57 @@ export function formatFetchTime(timestamp?: number): string {
 
   if (isToday) {
     // 今天：只显示时间
-    return fetchTime.toLocaleTimeString("zh-CN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+    return {
+      display: fetchTime.toLocaleTimeString("zh-CN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+      showBelow: false,
+    };
   }
 
   // 计算是否在本周内
   const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay()); // 本周日
+  startOfWeek.setDate(now.getDate() - now.getDay());
   startOfWeek.setHours(0, 0, 0, 0);
 
   const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6); // 本周六
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
   endOfWeek.setHours(23, 59, 59, 999);
 
   if (fetchTime >= startOfWeek && fetchTime <= endOfWeek) {
     // 本周内：显示周几
     const weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
-    return weekdays[fetchTime.getDay()];
+    return {
+      display: weekdays[fetchTime.getDay()],
+      showBelow: false,
+    };
   }
 
-  // 其他：显示月-日
-  return fetchTime
-    .toLocaleDateString("zh-CN", {
+  // 其他情况：根据是否是当年决定显示格式
+  const isCurrentYear = now.getFullYear() === fetchTime.getFullYear();
+
+  if (isCurrentYear) {
+    // 当年：显示月-日
+    const display = fetchTime.toLocaleDateString("zh-CN", {
       month: "2-digit",
       day: "2-digit",
-    })
-    .replace("/", "-");
+    });
+    return {
+      display,
+      showBelow: false,
+    };
+  } else {
+    // 非当年：显示完整日期，放在下方
+    const display = fetchTime.toLocaleDateString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    return {
+      display,
+      showBelow: true,
+    };
+  }
 }
