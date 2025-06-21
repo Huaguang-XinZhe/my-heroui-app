@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { ToastProvider } from "@heroui/toast";
 import { BackgroundProvider } from "@/contexts/BackgroundContext";
+import { SessionProvider } from "next-auth/react";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -26,20 +27,22 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
 
   return (
-    <HeroUIProvider navigate={router.push}>
-      <ToastProvider
-        placement="top-center"
-        toastOffset={15}
-        toastProps={{
-          radius: "lg",
-          color: "default",
-          variant: "flat",
-          timeout: 1500,
-        }}
-      />
-      <NextThemesProvider {...themeProps}>
-        <BackgroundProvider>{children}</BackgroundProvider>
-      </NextThemesProvider>
-    </HeroUIProvider>
+    <SessionProvider>
+      <HeroUIProvider navigate={router.push}>
+        <ToastProvider
+          placement="top-center"
+          toastOffset={15}
+          toastProps={{
+            radius: "lg",
+            color: "default",
+            variant: "flat",
+            timeout: 1500,
+          }}
+        />
+        <NextThemesProvider {...themeProps}>
+          <BackgroundProvider>{children}</BackgroundProvider>
+        </NextThemesProvider>
+      </HeroUIProvider>
+    </SessionProvider>
   );
 }

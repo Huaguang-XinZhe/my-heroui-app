@@ -217,3 +217,44 @@ export function getTimeDisplay(timestamp?: number) {
     };
   }
 }
+
+/**
+ * 格式化邮件日期显示
+ */
+export function formatEmailDate(date: string | Date): string {
+  const emailDate = typeof date === "string" ? new Date(date) : date;
+  const now = new Date();
+
+  // 计算时间差
+  const diffMs = now.getTime() - emailDate.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    // 今天：显示时间
+    return emailDate.toLocaleTimeString("zh-CN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  } else if (diffDays === 1) {
+    // 昨天
+    return "昨天";
+  } else if (diffDays < 7) {
+    // 一周内：显示周几
+    const weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+    return weekdays[emailDate.getDay()];
+  } else if (emailDate.getFullYear() === now.getFullYear()) {
+    // 当年：显示月-日
+    return emailDate.toLocaleDateString("zh-CN", {
+      month: "2-digit",
+      day: "2-digit",
+    });
+  } else {
+    // 其他年份：显示完整日期
+    return emailDate.toLocaleDateString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  }
+}
