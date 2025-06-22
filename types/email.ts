@@ -5,7 +5,7 @@ export interface MailInfo {
   refreshToken: string;
   clientId?: string;
   serviceProvider?: string;
-  protocolType?: string;
+  protocolType?: ProtocolType;
   password?: string;
 }
 

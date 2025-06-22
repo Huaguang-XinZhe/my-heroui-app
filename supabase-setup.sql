@@ -314,4 +314,125 @@ SELECT * FROM available_emails;
 SELECT 
     '数据库设置完成！' as message,
     '短效邮箱: ' || (SELECT COUNT(*) FROM emails WHERE type = 'short_term' AND status = 'active') as short_term_count,
-    '长效邮箱: ' || (SELECT COUNT(*) FROM emails WHERE type = 'long_term' AND status = 'active') as long_term_count; 
+    '长效邮箱: ' || (SELECT COUNT(*) FROM emails WHERE type = 'long_term' AND status = 'active') as long_term_count;
+
+-- ============================================
+-- 邮件系统数据库表
+-- ============================================
+
+-- 8. 创建邮箱账户表（存储已添加的邮箱账户信息）
+CREATE TABLE IF NOT EXISTS mail_accounts (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    refresh_token TEXT NOT NULL,
+    client_id VARCHAR(255),
+    service_provider VARCHAR(50) DEFAULT 'MICROSOFT',
+    protocol_type VARCHAR(20) NOT NULL CHECK (protocol_type IN ('IMAP', 'GRAPH', 'UNKNOWN')),
+    password VARCHAR(255),
+    is_banned BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    last_fetched_at TIMESTAMP WITH TIME ZONE,
+    notes TEXT
+);
+
+-- 9. 创建邮件存储表（存储获取到的邮件内容）
+CREATE TABLE IF NOT EXISTS stored_mails (
+    id VARCHAR(255) PRIMARY KEY, -- 邮件的唯一ID
+    subject TEXT NOT NULL,
+    from_name VARCHAR(255),
+    from_address VARCHAR(255) NOT NULL,
+    to_name VARCHAR(255),
+    to_address VARCHAR(255) NOT NULL,
+    date_sent TIMESTAMP WITH TIME ZONE NOT NULL,
+    text_content TEXT,
+    html_content TEXT,
+    account_email VARCHAR(255) NOT NULL, -- 关联到 mail_accounts
+    received_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    mail_type VARCHAR(20) DEFAULT 'inbox' CHECK (mail_type IN ('inbox', 'junk')),
+    FOREIGN KEY (account_email) REFERENCES mail_accounts(email) ON DELETE CASCADE
+);
+
+-- 10. 创建邮件操作日志表（记录邮件获取操作）
+CREATE TABLE IF NOT EXISTS mail_operation_logs (
+    id BIGSERIAL PRIMARY KEY,
+    account_email VARCHAR(255) NOT NULL,
+    operation_type VARCHAR(50) NOT NULL CHECK (operation_type IN ('fetch_latest', 'fetch_junk', 'batch_add')),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('success', 'error', 'partial')),
+    result_count INTEGER DEFAULT 0,
+    error_message TEXT,
+    operation_time TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    ip_address INET,
+    user_agent TEXT,
+    FOREIGN KEY (account_email) REFERENCES mail_accounts(email) ON DELETE CASCADE
+);
+
+-- 11. 创建索引以提高邮件查询性能
+CREATE INDEX IF NOT EXISTS idx_mail_accounts_email ON mail_accounts(email);
+CREATE INDEX IF NOT EXISTS idx_mail_accounts_protocol_type ON mail_accounts(protocol_type);
+CREATE INDEX IF NOT EXISTS idx_mail_accounts_is_banned ON mail_accounts(is_banned);
+CREATE INDEX IF NOT EXISTS idx_stored_mails_account_email ON stored_mails(account_email);
+CREATE INDEX IF NOT EXISTS idx_stored_mails_date_sent ON stored_mails(date_sent DESC);
+CREATE INDEX IF NOT EXISTS idx_stored_mails_received_at ON stored_mails(received_at DESC);
+CREATE INDEX IF NOT EXISTS idx_stored_mails_mail_type ON stored_mails(mail_type);
+CREATE INDEX IF NOT EXISTS idx_mail_operation_logs_account_email ON mail_operation_logs(account_email);
+CREATE INDEX IF NOT EXISTS idx_mail_operation_logs_operation_time ON mail_operation_logs(operation_time DESC);
+
+-- 12. 为邮箱账户表添加自动更新时间戳的触发器
+CREATE TRIGGER update_mail_accounts_updated_at 
+    BEFORE UPDATE ON mail_accounts 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- 13. 创建视图：可用邮箱账户
+CREATE OR REPLACE VIEW available_mail_accounts AS
+SELECT 
+    email,
+    refresh_token,
+    client_id,
+    service_provider,
+    protocol_type,
+    password,
+    created_at,
+    last_fetched_at
+FROM mail_accounts 
+WHERE is_banned = FALSE
+ORDER BY last_fetched_at ASC NULLS FIRST;
+
+-- 14. 创建函数：获取指定邮箱的最新邮件
+CREATE OR REPLACE FUNCTION get_latest_mail_by_account(
+    account_email_param VARCHAR(255)
+)
+RETURNS TABLE (
+    id VARCHAR(255),
+    subject TEXT,
+    from_name VARCHAR(255),
+    from_address VARCHAR(255),
+    to_name VARCHAR(255),
+    to_address VARCHAR(255),
+    date_sent TIMESTAMP WITH TIME ZONE,
+    text_content TEXT,
+    html_content TEXT,
+    received_at TIMESTAMP WITH TIME ZONE,
+    mail_type VARCHAR(20)
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        sm.id,
+        sm.subject,
+        sm.from_name,
+        sm.from_address,
+        sm.to_name,
+        sm.to_address,
+        sm.date_sent,
+        sm.text_content,
+        sm.html_content,
+        sm.received_at,
+        sm.mail_type
+    FROM stored_mails sm
+    WHERE sm.account_email = account_email_param
+    ORDER BY sm.date_sent DESC
+    LIMIT 1;
+END;
+$$ LANGUAGE plpgsql; 

@@ -6,8 +6,7 @@ import {
   GetJunkMailRequest,
   GetJunkMailResponse,
 } from "@/types/email";
-
-const API_BASE_URL = "http://localhost:8080";
+import { NEXT_API_CONFIG, buildNextApiUrl } from "@/config/api";
 
 /**
  * 批量添加邮箱账户
@@ -20,13 +19,16 @@ export async function batchAddAccounts(
   error?: string;
 }> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/mail/batch-add-account`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      buildNextApiUrl(NEXT_API_CONFIG.ENDPOINTS.MAIL.BATCH_ADD_ACCOUNT),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
       },
-      body: JSON.stringify(request),
-    });
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -53,13 +55,16 @@ export async function getLatestMail(request: GetLatestMailRequest): Promise<{
   error?: string;
 }> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/mail/latest`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      buildNextApiUrl(NEXT_API_CONFIG.ENDPOINTS.MAIL.LATEST),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
       },
-      body: JSON.stringify(request),
-    });
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -86,13 +91,16 @@ export async function getJunkMail(request: GetJunkMailRequest): Promise<{
   error?: string;
 }> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/mail/latest/junk`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      buildNextApiUrl(NEXT_API_CONFIG.ENDPOINTS.MAIL.LATEST_JUNK),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
       },
-      body: JSON.stringify(request),
-    });
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
