@@ -5,6 +5,7 @@ export interface CardKeyData {
   duration: "短效" | "长效";
   timestamp: number;
   id: string;
+  reusable?: boolean; // 是否可重复使用
 }
 
 export interface UsedCardKey {
@@ -117,6 +118,7 @@ export function generateCardKey(data: CardKeyData): string {
     d: data.duration === "短效" ? "S" : "L", // 有效期简化
     t: Math.floor(data.timestamp / 1000), // 时间戳（秒级，节省空间）
     i: data.id.substring(0, 6), // ID 取前6位
+    r: data.reusable ? 1 : 0, // 是否可重复使用
   };
 
   // 序列化为紧凑的字符串
@@ -153,14 +155,48 @@ export function verifyCardKey(
       };
     }
 
-    // 检查是否已被使用
-    if (usedKeys.has(cardKey)) {
+    // 解析卡密数据
+    const parseResult = parseCardKeyData(cardKey);
+    if (!parseResult.isValid) {
+      return parseResult;
+    }
+
+    const data = parseResult.data!;
+
+    // 检查是否可重复使用
+    if (!data.reusable && usedKeys.has(cardKey)) {
       return {
         isValid: false,
         error: "卡密已被使用",
       };
     }
 
+    // 标记为已使用（仅对一次性卡密）
+    if (!data.reusable) {
+      markKeyAsUsed(cardKey, userId);
+    }
+
+    return {
+      isValid: true,
+      data,
+    };
+  } catch (error) {
+    return {
+      isValid: false,
+      error: error instanceof Error ? error.message : "验证过程中发生未知错误",
+    };
+  }
+}
+
+/**
+ * 解析卡密数据（提取公共逻辑）
+ */
+function parseCardKeyData(cardKey: string): {
+  isValid: boolean;
+  data?: CardKeyData;
+  error?: string;
+} {
+  try {
     // 移除前缀
     const withoutPrefix = cardKey.substring(3);
 
@@ -205,10 +241,11 @@ export function verifyCardKey(
     // 验证数据结构
     if (
       !compactData.s ||
-      !compactData.e ||
+      compactData.e === undefined ||
       !compactData.d ||
       !compactData.t ||
-      !compactData.i
+      !compactData.i ||
+      compactData.r === undefined
     ) {
       return {
         isValid: false,
@@ -225,22 +262,8 @@ export function verifyCardKey(
       duration: compactData.d === "S" ? "短效" : "长效",
       timestamp: compactData.t * 1000, // 转回毫秒
       id: compactData.i,
+      reusable: compactData.r === 1,
     };
-
-    // // 验证有效期
-    // const now = Date.now();
-    // const daysDiff = (now - data.timestamp) / (1000 * 60 * 60 * 24);
-    // const maxDays = data.duration === "短效" ? 7 : 30;
-
-    // if (daysDiff > maxDays) {
-    //   return {
-    //     isValid: false,
-    //     error: `卡密已过期（${data.duration === "短效" ? "7天" : "30天"}）`,
-    //   };
-    // }
-
-    // 标记为已使用
-    markKeyAsUsed(cardKey, userId);
 
     return {
       isValid: true,
@@ -249,7 +272,7 @@ export function verifyCardKey(
   } catch (error) {
     return {
       isValid: false,
-      error: error instanceof Error ? error.message : "验证过程中发生未知错误",
+      error: error instanceof Error ? error.message : "解析卡密数据失败",
     };
   }
 }

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyCardKey, CardKeyData } from "@/utils/cardKeyUtils";
-import { getEmailsByType, logCardVerification } from "@/lib/supabase/emails";
 
 interface BatchVerifyRequest {
   cardKeys: string[];
@@ -62,47 +61,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 从 Supabase 获取邮箱
+    // 注意：邮箱分配功能已迁移到新的用户系统中
+    // 这里只返回验证结果，不再提供邮箱分配
     const emailData = {
       shortTerm: [] as string[],
       longTerm: [] as string[],
     };
 
-    // 获取短效邮箱
-    if (emailCounts.shortTerm > 0) {
-      emailData.shortTerm = await getEmailsByType(
-        "short_term",
-        emailCounts.shortTerm,
-      );
-    }
-
-    // 获取长效邮箱
-    if (emailCounts.longTerm > 0) {
-      emailData.longTerm = await getEmailsByType(
-        "long_term",
-        emailCounts.longTerm,
-      );
-    }
-
-    // 记录验证日志
-    const validCards = results.filter((r) => r.isValid);
-    if (validCards.length > 0) {
-      const logEntries = validCards.map((card) => ({
-        card_key: card.key,
-        user_id: userId,
-        verified_at: new Date().toISOString(),
-        email_count: card.data?.emailCount || 0,
-        duration: card.data?.duration || "未知",
-        source: card.data?.source || "未知",
-        custom_source: card.data?.customSource,
-      }));
-
-      await logCardVerification(logEntries);
-    }
+    // 在新架构下，不再自动分配邮箱
+    // 用户需要通过用户系统管理自己的邮箱账户
 
     const validCount = results.filter((r) => r.isValid).length;
-    const totalEmailsProvided =
-      emailData.shortTerm.length + emailData.longTerm.length;
     const totalEmailsRequested = emailCounts.shortTerm + emailCounts.longTerm;
 
     return NextResponse.json({
@@ -114,12 +83,13 @@ export async function POST(request: NextRequest) {
         validCount,
         invalidCount: results.length - validCount,
         totalEmailsRequested,
-        totalEmailsProvided,
+        totalEmailsProvided: 0, // 新架构下不再提供邮箱分配
         shortTermRequested: emailCounts.shortTerm,
-        shortTermProvided: emailData.shortTerm.length,
+        shortTermProvided: 0,
         longTermRequested: emailCounts.longTerm,
-        longTermProvided: emailData.longTerm.length,
+        longTermProvided: 0,
       },
+      notice: "邮箱分配功能已迁移到新的用户系统中，请通过用户账户管理邮箱。",
     });
   } catch (error) {
     console.error("批量验证卡密失败:", error);

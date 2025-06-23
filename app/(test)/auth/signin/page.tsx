@@ -14,6 +14,9 @@ export default function SignInPage() {
   useEffect(() => {
     if (session) {
       router.push("/");
+    } else {
+      // 重定向到新的登录页面
+      router.push("/login");
     }
   }, [session, router]);
 

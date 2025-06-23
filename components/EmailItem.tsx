@@ -34,12 +34,7 @@ function isEmailTruncated(email: string): boolean {
   return parsed.username.length > 10;
 }
 
-export function EmailItem({
-  account,
-  isSelected,
-  onSelect,
-  displayEmail,
-}: EmailItemProps) {
+export function EmailItem({ account, isSelected, onSelect }: EmailItemProps) {
   const selectedEmailRef = useRef<HTMLDivElement>(null);
 
   // 滚动到选中的邮箱

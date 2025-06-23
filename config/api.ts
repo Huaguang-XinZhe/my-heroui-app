@@ -60,6 +60,13 @@ export const NEXT_API_CONFIG = {
       NEXTAUTH: "/auth/[...nextauth]",
     },
 
+    // 管理员专用 API
+    ADMIN: {
+      MAIL: {
+        BATCH_ADD: "/admin/mail/batch-add",
+      },
+    },
+
     // 其他 API
     DEBUG_SESSION: "/debug-session",
     DECRYPT_TOKEN: "/decrypt-token",
@@ -67,6 +74,8 @@ export const NEXT_API_CONFIG = {
     // 卡密验证相关
     CARD: {
       BATCH_VERIFY: "/card/batch-verify",
+      VERIFY_AND_CREATE_TRIAL: "/card/verify-and-create-trial",
+      REUSABLE_LOGIN: "/card/reusable-login",
     },
   },
 } as const;

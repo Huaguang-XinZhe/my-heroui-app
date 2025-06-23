@@ -30,6 +30,8 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaUpload,
+  FaShield,
+  FaDatabase,
 } from "react-icons/fa6";
 import { TbInfoCircle } from "react-icons/tb";
 
@@ -142,4 +144,12 @@ export const IconChevronRight = ({ className }: IconProps) => (
 
 export const IconUpload = ({ className }: IconProps) => (
   <FaUpload className={className} />
+);
+
+export const IconShield = ({ className }: IconProps) => (
+  <FaShield className={className} />
+);
+
+export const IconDatabase = ({ className }: IconProps) => (
+  <FaDatabase className={className} />
 );

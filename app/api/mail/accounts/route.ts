@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAvailableMailAccounts } from "@/lib/supabase/emails";
+import { getAvailableMailAccounts } from "@/lib/supabase/client";
 import { createClient } from "@/lib/supabase/client";
 
 /**

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Card, CardBody, CardHeader } from "@heroui/card";
@@ -15,21 +17,85 @@ import { SpinnerIcon } from "@/components/icons/SpinnerIcon";
 import { motion, AnimatePresence } from "framer-motion";
 import { DividerWithText } from "@/components/DividerWithText";
 import { AuthButton } from "@/components/AuthButton";
+import { signIn } from "next-auth/react";
+import { showSuccessToast, showErrorToast } from "@/utils/toast";
+import { addEmailsToCache } from "@/cache/emailCache";
 
 export default function LoginPage() {
   const [cardKey, setCardKey] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { data: session } = useSession();
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // 如果已登录，重定向到首页
+  if (session) {
+    router.push("/");
+    return null;
+  }
+
+  const handleCardKeySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!cardKey) return;
+
+    if (!cardKey.trim()) {
+      showErrorToast("请输入卡密");
+      return;
+    }
 
     setIsLoading(true);
-    // 模拟验证过程
-    setTimeout(() => {
+
+    try {
+      const response = await fetch("/api/card/cardkey-login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cardKey: cardKey.trim(),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.accountData) {
+        const message = result.isFirstTime
+          ? `卡密验证成功！已为您分配专属邮箱账户`
+          : `欢迎回来！卡密验证成功`;
+
+        showSuccessToast(message);
+
+        // 将邮箱添加到缓存
+        if (result.cacheEmailInfo) {
+          addEmailsToCache([result.cacheEmailInfo]);
+        }
+
+        // 存储体验账户信息到 localStorage
+        localStorage.setItem(
+          "trialAccount",
+          JSON.stringify({
+            ...result.accountData,
+            cardData: {
+              ...result.userSession.cardData,
+              originalCardKey: cardKey.trim(), // 保存原始卡密
+            },
+            isTrialAccount: true,
+          }),
+        );
+
+        // 重定向到首页
+        router.push("/");
+      } else {
+        showErrorToast(result.error || "卡密验证失败，请检查卡密是否正确");
+      }
+    } catch (error) {
+      console.error("卡密验证失败:", error);
+      showErrorToast("网络错误，请重试");
+    } finally {
       setIsLoading(false);
-      // 这里可以添加验证成功后的逻辑
-    }, 2000);
+    }
+  };
+
+  const handleGoogleSignIn = () => {
+    signIn("google", { callbackUrl: "/" });
   };
 
   return (
@@ -56,7 +122,7 @@ export default function LoginPage() {
 
         <CardBody className="space-y-6 px-8 pt-6">
           {/* 卡密登录区域 - 使用表单包装 */}
-          <Form onSubmit={handleSubmit} className="space-y-4">
+          <Form onSubmit={handleCardKeySubmit} className="space-y-4">
             <Input
               isClearable
               onClear={() => setCardKey("")}
@@ -95,7 +161,7 @@ export default function LoginPage() {
             <div className="flex rounded-lg border-l-4 border-indigo-500 bg-indigo-900/20 p-4">
               <FaInfoCircle className="mt-0.5 w-8 text-indigo-400" />
               <p className="ml-2 text-sm font-medium text-indigo-300">
-                卡密仅可使用一次，登录后将自动创建账号。请务必保存好您的登录信息！
+                卡密可重复使用，首次使用时将自动分配邮箱账户。请务必妥善保存，这是卡密登录的唯一凭证！
               </p>
             </div>
           </Form>
@@ -107,7 +173,11 @@ export default function LoginPage() {
           <div className="grid grid-cols-2 gap-4">
             <AuthButton icon={<FengziLogo />} text="Fengzi 授权" />
 
-            <AuthButton icon={<FcGoogle />} text="谷歌授权" />
+            <AuthButton
+              icon={<FcGoogle />}
+              text="谷歌授权"
+              onPress={handleGoogleSignIn}
+            />
           </div>
 
           <div className="mt-4 text-center">

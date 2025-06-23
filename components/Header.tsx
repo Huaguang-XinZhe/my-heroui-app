@@ -10,12 +10,210 @@ import {
   DropdownMenu,
 } from "@heroui/dropdown";
 import { Avatar } from "@heroui/avatar";
+import { Chip } from "@heroui/chip";
 import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { showSuccessToast } from "@/utils/toast";
+import {
+  clearAllUserData,
+  formatCardKeyDisplay,
+  copyCardKeyWithToast,
+} from "@/utils/utils";
 import { Logo } from "./icons/Logo";
 import { IconLogin } from "./icons/icons";
+import { TrialAccount } from "@/types/email";
 
 export function Header() {
-  const isLoggedIn = true;
+  const { data: session, status } = useSession();
+  const [trialAccount, setTrialAccount] = useState<TrialAccount | null>(null);
+
+  // 检查体验账户
+  useEffect(() => {
+    const trialAccountData = localStorage.getItem("trialAccount");
+    if (trialAccountData) {
+      try {
+        setTrialAccount(JSON.parse(trialAccountData));
+      } catch (error) {
+        console.error("解析体验账户数据失败:", error);
+      }
+    }
+  }, []);
+
+  // 处理体验账户退出登录
+  const handleTrialLogout = () => {
+    // 清除所有用户数据
+    clearAllUserData();
+    setTrialAccount(null);
+    showSuccessToast("已退出体验账户");
+    window.location.href = "/login";
+  };
+
+  // 处理卡密复制
+  const handleCopyCardKey = (cardKey: string) => {
+    copyCardKeyWithToast(cardKey, showSuccessToast);
+  };
+
+  // 处理邮箱复制（OAuth2 用户）
+  const handleCopyEmail = (email: string) => {
+    navigator.clipboard.writeText(email);
+    showSuccessToast("邮箱已复制", email);
+  };
+
+  // 渲染用户头像和菜单
+  const renderUserMenu = () => {
+    if (status === "loading") {
+      return (
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+      );
+    }
+
+    if (trialAccount) {
+      return (
+        <div className="flex items-center gap-3">
+          <Dropdown placement="bottom-end" className="bg-dark-card">
+            <DropdownTrigger>
+              <Avatar
+                isBordered
+                as="button"
+                className="transition-transform"
+                color="primary"
+                size="sm"
+                src="/default-avator.jpg"
+                name="体验账户"
+              />
+            </DropdownTrigger>
+            <DropdownMenu aria-label="体验账户菜单" variant="flat">
+              <DropdownItem
+                key="profile"
+                className="h-14 gap-2"
+                onPress={() => {
+                  // 复制原始卡密
+                  const originalCardKey =
+                    trialAccount.cardData?.originalCardKey || "未知卡密";
+                  handleCopyCardKey(originalCardKey);
+                }}
+              >
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-semibold">华光共享号</p>
+                  <p className="text-xs text-default-400">
+                    卡密:{" "}
+                    {formatCardKeyDisplay(
+                      trialAccount.cardData?.originalCardKey || "",
+                      16,
+                    )}
+                  </p>
+                </div>
+              </DropdownItem>
+              <DropdownItem
+                key="logout"
+                color="danger"
+                onPress={handleTrialLogout}
+              >
+                退出登录
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+          <Chip
+            size="sm"
+            color="success"
+            variant="flat"
+            className="hidden sm:flex"
+          >
+            体验账户
+          </Chip>
+        </div>
+      );
+    }
+
+    if (session) {
+      return (
+        <div className="flex items-center gap-3">
+          <Dropdown placement="bottom-end" className="bg-dark-card">
+            <DropdownTrigger>
+              <Avatar
+                isBordered
+                as="button"
+                className="transition-transform"
+                color="primary"
+                size="sm"
+                src={
+                  session.user?.image
+                    ? `/api/proxy-image?url=${encodeURIComponent(session.user.image)}`
+                    : "/default-avator.jpg"
+                }
+                name={session.user?.name || session.user?.email || "用户"}
+              />
+            </DropdownTrigger>
+            <DropdownMenu aria-label="用户菜单" variant="flat">
+              <DropdownItem
+                key="profile"
+                className="h-14 gap-2"
+                onPress={() => handleCopyEmail(session.user?.email || "")}
+              >
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-semibold">
+                    {session.user?.name || "用户"}
+                  </p>
+                  <p className="text-xs text-default-400">
+                    {session.user?.email}
+                  </p>
+                </div>
+              </DropdownItem>
+              {session.user?.isAdmin ? (
+                <>
+                  <DropdownItem key="admin-dashboard" as={Link} href="/admin">
+                    🏛️ 管理员控制台
+                  </DropdownItem>
+                </>
+              ) : null}
+              <DropdownItem
+                key="batch-verify"
+                as={Link}
+                href="/batch-card-verify"
+              >
+                ✅ 批量验证
+              </DropdownItem>
+              <DropdownItem
+                key="logout"
+                color="danger"
+                onPress={() => {
+                  // 清除所有用户数据
+                  clearAllUserData();
+                  // 退出登录
+                  signOut({ callbackUrl: "/login" });
+                }}
+              >
+                退出登录
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+          {session.user?.isAdmin && (
+            <Chip
+              size="sm"
+              color="warning"
+              variant="flat"
+              className="hidden sm:flex"
+            >
+              管理员
+            </Chip>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <Button
+        as={Link}
+        href="/login"
+        color="primary"
+        size="sm"
+        startContent={<IconLogin />}
+      >
+        登录
+      </Button>
+    );
+  };
 
   return (
     <Navbar className="bg-dark-card">
@@ -46,46 +244,7 @@ export function Header() {
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent justify="end">
-        {isLoggedIn ? (
-          <Dropdown placement="bottom-end" className="bg-dark-card">
-            <DropdownTrigger>
-              <Avatar
-                isBordered
-                as="button"
-                className="transition-transform"
-                color="primary"
-                size="sm"
-                src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-              />
-            </DropdownTrigger>
-            <DropdownMenu aria-label="用户菜单" variant="flat">
-              <DropdownItem key="profile" className="h-14 gap-2">
-                <p className="font-semibold">已登录为</p>
-                <p className="font-semibold">user@example.com</p>
-              </DropdownItem>
-              <DropdownItem key="settings">个人设置</DropdownItem>
-              <DropdownItem key="team_settings">团队设置</DropdownItem>
-              <DropdownItem key="analytics">数据分析</DropdownItem>
-              <DropdownItem key="system">系统管理</DropdownItem>
-              <DropdownItem key="help">帮助与反馈</DropdownItem>
-              <DropdownItem key="logout" color="danger">
-                退出登录
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        ) : (
-          <Button
-            as={Link}
-            href="/login"
-            color="primary"
-            size="sm"
-            startContent={<IconLogin />}
-          >
-            登录
-          </Button>
-        )}
-      </NavbarContent>
+      <NavbarContent justify="end">{renderUserMenu()}</NavbarContent>
     </Navbar>
   );
 }

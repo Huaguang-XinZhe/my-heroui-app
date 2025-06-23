@@ -9,7 +9,6 @@ import { ScrollShadow } from "@heroui/scroll-shadow";
 import { SearchInput } from "./SearchInput";
 import { getCachedEmails } from "@/cache/emailCache";
 import { CachedEmailInfo } from "@/types/email";
-import { isEmailTruncated, truncateEmail } from "@/utils/utils";
 
 interface EmailSidebarProps {
   onEmailSelect?: (email: string) => void;
@@ -63,7 +62,7 @@ export function EmailSidebar({
   };
 
   // 过滤邮箱账户
-  const processedAccounts = emailAccounts.filter((account) =>
+  const filteredAccounts = emailAccounts.filter((account) =>
     account.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
@@ -74,7 +73,9 @@ export function EmailSidebar({
           <IconAt className="mr-2 mt-0.5" />
           我的邮箱
         </h2>
-        <span className="text-xs text-gray-500">{emailAccounts.length} 个</span>
+        <span className="text-xs text-gray-500">
+          {filteredAccounts.length} 个
+        </span>
       </div>
 
       {/* 搜索框 */}
@@ -88,13 +89,13 @@ export function EmailSidebar({
       {/* 邮箱列表 */}
       <ScrollShadow hideScrollBar className="flex-1">
         <div className="h-full space-y-2 p-2">
-          {processedAccounts.length === 0 ? (
+          {filteredAccounts.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-gray-400">
               <p className="text-sm">暂无邮箱账户</p>
               <p className="mt-1 text-xs text-gray-500">点击下方按钮添加邮箱</p>
             </div>
           ) : (
-            processedAccounts.map((account) => {
+            filteredAccounts.map((account) => {
               const isSelected = account.email === selectedEmail;
 
               return (

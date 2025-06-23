@@ -1,6 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Spinner } from "@heroui/spinner";
 import { Header } from "@/components/Header";
 // import { HistorySidebar } from "@/components/HistorySidebar";
 import { EmailSidebar } from "@/components/EmailSidebar";
@@ -12,6 +15,8 @@ import { FormatGuideProvider } from "@/contexts/FormatGuideContext";
 import { useSelectedEmail } from "@/hooks/useSelectedEmail";
 
 export default function HomePage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const {
     selectedEmail,
     setSelectedEmail,
@@ -19,6 +24,21 @@ export default function HomePage() {
     cacheEmailContent,
     clearCachedEmailContent,
   } = useSelectedEmail();
+
+  // 检查身份验证状态
+  useEffect(() => {
+    // 如果正在加载身份验证状态，不做任何操作
+    if (status === "loading") return;
+
+    // 检查是否有体验账户信息（卡密登录）
+    const trialAccount = localStorage.getItem("trialAccount");
+
+    // 如果没有 NextAuth 会话且没有体验账户，重定向到登录页面
+    if (status === "unauthenticated" && !trialAccount) {
+      router.push("/login");
+      return;
+    }
+  }, [status, router]);
 
   const sidebarRefreshRef = useRef<(() => void) | null>(null);
   const triggerCooldownRef = useRef<((type: "inbox" | "junk") => void) | null>(
@@ -52,6 +72,16 @@ export default function HomePage() {
       triggerCooldownRef.current(type);
     }
   };
+
+  // 如果正在加载身份验证状态，显示加载界面
+  if (status === "loading") {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center gap-4">
+        <Spinner size="lg" color="primary" />
+        <p className="text-gray-400">正在验证身份...</p>
+      </div>
+    );
+  }
 
   return (
     <FormatGuideProvider>

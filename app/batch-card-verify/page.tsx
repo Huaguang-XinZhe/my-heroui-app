@@ -164,13 +164,13 @@ export default function BatchCardVerifyPage() {
             <div className="flex gap-3">
               <Button
                 as="a"
-                href="/card-key-generator"
+                href="/admin/card-key-generator"
                 color="secondary"
                 variant="flat"
                 size="sm"
                 className="flex-1"
               >
-                ← 返回卡密生成
+                ← 前往卡密生成 (需管理员权限)
               </Button>
             </div>
           </CardBody>

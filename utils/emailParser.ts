@@ -128,6 +128,14 @@ export function convertToMailInfo(
     mailInfo.clientId = parsedData.clientId;
   }
 
+  if (parsedData.secondaryEmail) {
+    mailInfo.secondaryEmail = parsedData.secondaryEmail;
+  }
+
+  if (parsedData.secondaryPassword) {
+    mailInfo.secondaryPassword = parsedData.secondaryPassword;
+  }
+
   if (protocolType !== "UNKNOWN") {
     mailInfo.protocolType = protocolType;
   }

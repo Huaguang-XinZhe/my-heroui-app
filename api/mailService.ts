@@ -47,6 +47,44 @@ export async function batchAddAccounts(
 }
 
 /**
+ * 管理员批量添加邮箱账户（未分配）
+ */
+export async function adminBatchAddAccounts(
+  request: BatchAddAccountRequest,
+): Promise<{
+  success: boolean;
+  data?: BatchAddMailAccountResponse;
+  error?: string;
+}> {
+  try {
+    const response = await fetch(
+      buildNextApiUrl(NEXT_API_CONFIG.ENDPOINTS.ADMIN.MAIL.BATCH_ADD),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
+      },
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    const data: BatchAddMailAccountResponse = await response.json();
+    return { success: true, data };
+  } catch (error) {
+    console.error("管理员批量添加邮箱账户失败:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "未知错误",
+    };
+  }
+}
+
+/**
  * 获取最新邮件
  */
 export async function getLatestMail(request: GetLatestMailRequest): Promise<{

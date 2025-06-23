@@ -5,6 +5,7 @@ import { Avatar } from "@heroui/avatar";
 import { Button } from "@heroui/button";
 import { Card, CardBody } from "@heroui/card";
 import { Spinner } from "@heroui/spinner";
+import { clearAllUserData } from "@/utils/utils";
 
 export function UserProfile() {
   const { data: session, status } = useSession();
@@ -35,7 +36,12 @@ export function UserProfile() {
           <p className="text-default-500">{session.user?.email}</p>
         </div>
         <Button
-          onPress={() => signOut({ callbackUrl: "/auth/signin" })}
+          onPress={() => {
+            // 清除所有用户数据
+            clearAllUserData();
+            // 退出登录
+            signOut({ callbackUrl: "/login" });
+          }}
           color="danger"
           variant="flat"
           className="w-full"

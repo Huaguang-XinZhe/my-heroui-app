@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
@@ -22,13 +24,47 @@ interface GeneratedKey {
 }
 
 export default function CardKeyGeneratorPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [source, setSource] = useState<Source>("淘宝");
   const [customSource, setCustomSource] = useState("");
   const [emailCount, setEmailCount] = useState("100");
-  const [duration, setDuration] = useState<Duration>("短效");
+  const [duration, setDuration] = useState<Duration>("长效");
   const [generateCount, setGenerateCount] = useState("1");
+  const [isReusable, setIsReusable] = useState(false);
   const [generatedKeys, setGeneratedKeys] = useState<GeneratedKey[]>([]);
   const [usedKeys, setUsedKeys] = useState<string[]>([]);
+
+  // 检查登录状态和管理员权限
+  useEffect(() => {
+    if (status === "loading") return; // 仍在加载中
+
+    if (!session) {
+      // 未登录，重定向到登录页面
+      router.push("/auth/signin");
+      return;
+    }
+
+    if (!session.user?.isAdmin) {
+      // 非管理员，重定向到未授权页面
+      router.push("/unauthorized");
+      return;
+    }
+  }, [session, status, router]);
+
+  // 如果正在加载或非管理员，显示加载状态
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // 如果未登录或非管理员，不渲染页面内容
+  if (!session || !session.user?.isAdmin) {
+    return null;
+  }
 
   const handleGenerate = () => {
     const count = parseInt(generateCount);
@@ -59,10 +95,11 @@ export default function CardKeyGeneratorPage() {
       const data: CardKeyData = {
         source,
         customSource: source === "自定义" ? customSource.trim() : undefined,
-        emailCount: emailCountNum,
+        emailCount: isReusable ? 1 : emailCountNum, // 体验账户卡密固定为 1 个邮箱
         duration,
         timestamp: Date.now(),
         id: Math.random().toString(36).substring(2, 15),
+        reusable: isReusable,
       };
 
       const key = generateCardKey(data);
@@ -139,8 +176,8 @@ export default function CardKeyGeneratorPage() {
                   setDuration(Array.from(keys)[0] as Duration)
                 }
               >
-                <SelectItem key="短效">短效 (7天)</SelectItem>
-                <SelectItem key="长效">长效 (30天)</SelectItem>
+                <SelectItem key="短效">短效 (三两个小时)</SelectItem>
+                <SelectItem key="长效">长效 (30天或更久)</SelectItem>
               </Select>
 
               <Input
@@ -151,6 +188,19 @@ export default function CardKeyGeneratorPage() {
                 min="1"
                 max="100"
               />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="reusable"
+                checked={isReusable}
+                onChange={(e) => setIsReusable(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <label htmlFor="reusable" className="text-sm font-medium">
+                可重复使用（适用于体验账户登录）
+              </label>
             </div>
 
             {/* 自定义来源输入框 */}

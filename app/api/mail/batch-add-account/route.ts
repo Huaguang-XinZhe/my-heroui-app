@@ -9,7 +9,11 @@ import {
   SuccessResult,
 } from "@/types/email";
 import { goMailApiService } from "@/lib/goMailApi";
-import { addMailAccount, logMailOperation } from "@/lib/supabase/emails";
+import {
+  batchAddMailAccounts,
+  getUserById,
+  createUser,
+} from "@/lib/supabase/client";
 import { emailCacheManager } from "@/lib/emailCacheManager";
 import {
   fillDefaultValues,
@@ -43,11 +47,11 @@ interface TokenRefreshResult {
  * 批量添加邮箱账户
  * POST /api/mail/batch-add-account
  *
- * 完全按照 Kotlin 的业务逻辑实现：
- * 1. 预处理：填充默认值并过滤已存在邮箱
- * 2. 并发处理：协议检测和 token 刷新
- * 3. 分类结果：错误和成功
- * 4. 异步持久化：保存到数据库并更新缓存
+ * 重构后的业务逻辑：
+ * 1. 验证并获取/创建用户
+ * 2. 预处理：填充默认值
+ * 3. 并发处理：协议检测和 token 刷新
+ * 4. 批量添加到数据库
  */
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
@@ -58,100 +62,83 @@ export async function POST(request: NextRequest) {
     // 验证请求数据
     const validationError = validateBatchMailInfos(body.mailInfos);
     if (validationError) {
+      return NextResponse.json({ error: validationError }, { status: 400 });
+    }
+
+    // 验证用户ID或从请求中推断
+    let userId = body.user_id;
+    if (!userId && body.mailInfos.length > 0) {
+      // 如果没有提供用户ID，使用第一个邮箱作为用户ID（假设是OAuth2用户）
+      userId = body.mailInfos[0].email;
+    }
+
+    if (!userId) {
+      return NextResponse.json({ error: "缺少用户ID" }, { status: 400 });
+    }
+
+    console.log(
+      `开始批量添加邮箱账户: ${body.mailInfos.length} 个账户，用户: ${userId}，refreshNeeded: ${body.refreshNeeded}`,
+    );
+
+    // 1. 确保用户存在
+    let user = await getUserById(userId);
+    if (!user) {
+      // 尝试创建用户（假设是OAuth2类型）
+      const created = await createUser({
+        id: userId,
+        nickname: userId.includes("@") ? userId.split("@")[0] : userId,
+        user_type: userId.includes("@") ? "oauth2" : "card_key",
+      });
+
+      if (!created) {
+        return NextResponse.json({ error: "用户创建失败" }, { status: 500 });
+      }
+
+      user = await getUserById(userId);
+    }
+
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: validationError },
-        { status: 400 },
+        { error: "用户不存在且创建失败" },
+        { status: 500 },
       );
     }
 
-    console.log(
-      `开始批量添加邮箱账户: ${body.mailInfos.length} 个账户，refreshNeeded: ${body.refreshNeeded}`,
-    );
+    // 2. 预处理：填充默认值
+    const processedMailInfos = fillDefaultValues(body.mailInfos);
 
-    // 1. 预处理：填充默认值并过滤已存在邮箱
-    const { newMailInfos, fromOthersItems } =
-      await preprocessAndFilterMailInfos(body.mailInfos);
-
-    if (newMailInfos.length === 0) {
-      console.log("所有邮箱都已存在，跳过批量添加");
-      return NextResponse.json({
-        fromOthers: fromOthersItems,
-        errors: [],
-        successes: [],
-      });
-    }
-
-    // 2. 并发处理：协议检测和 token 刷新
+    // 3. 并发处理：协议检测和 token 刷新
     const processingResults = await performConcurrentProcessing(
-      newMailInfos,
+      processedMailInfos,
       body.refreshNeeded,
     );
 
-    // 3. 分类结果：错误和成功
-    const { errorItems, successItems } =
-      categorizeProcessingResults(processingResults);
-
-    // 4. 异步持久化：保存到数据库并更新缓存
-    scheduleAsyncPersistence(processingResults, newMailInfos, request);
+    // 4. 使用新的数据库函数批量添加
+    const dbResult = await batchAddMailAccounts(processedMailInfos, userId);
 
     const elapsed = Date.now() - startTime;
     console.log(
-      `批量添加邮箱账户完成 (${elapsed}ms) - 来自别人账户: ${fromOthersItems.length}，错误: ${errorItems.length}，成功: ${successItems.length}`,
+      `批量添加邮箱账户完成 (${elapsed}ms) - 来自其他用户: ${dbResult.fromOthers.length}，错误: ${dbResult.errors.length}，成功: ${dbResult.successes.length}`,
     );
 
     const response: BatchAddMailAccountResponse = {
-      fromOthers: fromOthersItems,
-      errors: errorItems,
-      successes: successItems,
+      fromOthers: dbResult.fromOthers,
+      errors: dbResult.errors,
+      successes: dbResult.successes,
     };
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("批量添加邮箱账户失败:", error);
+    const elapsed = Date.now() - startTime;
+    console.error(`批量添加邮箱账户失败 (${elapsed}ms):`, error);
     return NextResponse.json(
       {
-        success: false,
-        error: error instanceof Error ? error.message : "服务器内部错误",
+        error: "批量添加邮箱账户失败",
+        details: error instanceof Error ? error.message : "未知错误",
       },
       { status: 500 },
     );
   }
-}
-
-/**
- * 预处理并过滤邮箱信息：填充默认值并分离已存在的邮箱
- */
-async function preprocessAndFilterMailInfos(mailInfos: MailInfo[]): Promise<{
-  newMailInfos: MailInfo[];
-  fromOthersItems: FromOthersResult[];
-}> {
-  // 填充默认值（clientId 和 serviceProvider）
-  const processedMailInfos = fillDefaultValues(mailInfos);
-
-  const requestEmails = processedMailInfos.map((info) => info.email);
-  const { cachedEmails, newEmails } =
-    await emailCacheManager.filterCachedEmails(requestEmails);
-  const newMailInfos = processedMailInfos.filter((info) =>
-    newEmails.includes(info.email),
-  );
-
-  // 构建来自别人账户的邮箱列表
-  const fromOthersItems: FromOthersResult[] = [];
-  for (const email of cachedEmails) {
-    const isBanned = await emailCacheManager.isEmailBanned(email);
-    fromOthersItems.push({
-      email,
-      isBanned,
-    });
-  }
-
-  if (cachedEmails.length > 0) {
-    console.log(
-      `发现来自别人账户的邮箱: ${cachedEmails.length} 个，其中已封禁: ${fromOthersItems.filter((item) => item.isBanned).length} 个`,
-    );
-  }
-
-  return { newMailInfos, fromOthersItems };
 }
 
 /**
@@ -199,327 +186,137 @@ async function executeProtocolDetection(
   const results = new Map<string, ProtocolDetectionResult>();
 
   if (mailInfos.length === 0) {
-    console.log("跳过协议检测：所有邮箱都已有协议类型");
     return results;
   }
 
-  console.log(`启动协议检测任务: ${mailInfos.length} 个邮箱`);
-
   try {
-    const detectRequest = { mailInfos };
-    const detectResponse =
-      await goMailApiService.batchDetectProtocolType(detectRequest);
-
-    if (!detectResponse.success || !detectResponse.data) {
-      // API 调用失败，返回所有邮箱的失败结果
-      mailInfos.forEach((mailInfo) => {
-        results.set(mailInfo.email, {
-          protocolType: undefined,
-          error: `协议检测 API 调用失败: ${detectResponse.error}`,
-          isBanned: false,
-        });
-      });
-      return results;
-    }
-
-    // 处理成功的响应
-    detectResponse.data.results.forEach((result) => {
-      const isBanned = checkForBanKeywords(result.error);
-      results.set(result.email, {
-        protocolType: result.error ? undefined : result.protocolType,
-        error: result.error,
-        isBanned,
-      });
+    const batchResult = await goMailApiService.batchDetectProtocolType({
+      mailInfos,
     });
+
+    if (batchResult.success && batchResult.data?.results) {
+      for (const result of batchResult.data.results) {
+        const detectionResult: ProtocolDetectionResult = {
+          isBanned: false,
+        };
+
+        if (result.error) {
+          // 检查错误信息中是否包含封禁关键词
+          const hasBanKeywords = checkForBanKeywords(result.error);
+          detectionResult.error = result.error;
+          detectionResult.isBanned = hasBanKeywords;
+        } else {
+          detectionResult.protocolType = result.protocolType;
+        }
+
+        results.set(result.email, detectionResult);
+      }
+    }
   } catch (error) {
-    console.error("协议检测执行失败:", error);
-    // 返回所有邮箱的失败结果
-    mailInfos.forEach((mailInfo) => {
+    console.error("批量协议检测失败:", error);
+    // 对所有邮箱返回错误结果
+    for (const mailInfo of mailInfos) {
       results.set(mailInfo.email, {
-        protocolType: undefined,
-        error: `协议检测执行失败: ${error instanceof Error ? error.message : "未知错误"}`,
+        error: "协议检测失败",
         isBanned: false,
       });
-    });
+    }
   }
 
   return results;
 }
 
 /**
- * 执行 token 刷新
+ * 执行 Token 刷新
  */
 async function executeTokenRefresh(
   mailInfos: MailInfo[],
 ): Promise<Map<string, TokenRefreshResult>> {
   const results = new Map<string, TokenRefreshResult>();
 
-  console.log(`启动 token 刷新任务: ${mailInfos.length} 个邮箱`);
+  if (mailInfos.length === 0) {
+    return results;
+  }
 
   try {
-    const refreshResponse = await goMailApiService.batchRefreshToken(mailInfos);
+    const batchResult = await goMailApiService.batchRefreshToken(mailInfos);
 
-    if (!refreshResponse.success || !refreshResponse.data) {
-      // API 调用失败，返回所有邮箱的失败结果
-      mailInfos.forEach((mailInfo) => {
-        results.set(mailInfo.email, {
-          newRefreshToken: undefined,
-          error: `token 刷新 API 调用失败: ${refreshResponse.error}`,
-        });
-      });
-      return results;
+    if (batchResult.success && batchResult.data?.results) {
+      for (const result of batchResult.data.results) {
+        const refreshResult: TokenRefreshResult = {};
+
+        if (result.error) {
+          refreshResult.error = result.error;
+        } else {
+          refreshResult.newRefreshToken = result.newRefreshToken;
+        }
+
+        results.set(result.email, refreshResult);
+      }
     }
-
-    // 处理成功的响应
-    refreshResponse.data.results.forEach((result) => {
-      results.set(result.email, {
-        newRefreshToken: result.error ? undefined : result.newRefreshToken,
-        error: result.error,
-      });
-    });
   } catch (error) {
-    console.error("token 刷新执行失败:", error);
-    // 返回所有邮箱的失败结果
-    mailInfos.forEach((mailInfo) => {
+    console.error("批量 Token 刷新失败:", error);
+    // 对所有邮箱返回错误结果
+    for (const mailInfo of mailInfos) {
       results.set(mailInfo.email, {
-        newRefreshToken: undefined,
-        error: `token 刷新执行失败: ${error instanceof Error ? error.message : "未知错误"}`,
+        error: "Token 刷新失败",
       });
-    });
+    }
   }
 
   return results;
 }
 
 /**
- * 聚合协议检测和 token 刷新的结果
+ * 聚合处理结果
  */
 function aggregateProcessingResults(
   originalMailInfos: MailInfo[],
   protocolResults: Map<string, ProtocolDetectionResult>,
   tokenResults: Map<string, TokenRefreshResult>,
 ): ProcessingResult[] {
-  return originalMailInfos.map((mailInfo) => {
-    const protocolResult = protocolResults.get(mailInfo.email);
-    const tokenResult = tokenResults.get(mailInfo.email);
+  const results: ProcessingResult[] = [];
 
-    // 检查是否被封禁
-    const isBanned = protocolResult?.isBanned === true;
+  for (const mailInfo of originalMailInfos) {
+    const email = mailInfo.email;
+    const result: ProcessingResult = {
+      email,
+      isBanned: false,
+    };
 
-    // 聚合错误信息
-    const errors: string[] = [];
-
-    // 处理协议检测错误
-    if (protocolResult?.error) {
-      errors.push(`协议检测失败: ${protocolResult.error}`);
-    }
-
-    // 处理 token 刷新错误
-    if (tokenResult?.error) {
-      errors.push(`token 刷新失败: ${tokenResult.error}`);
-    }
-
-    const finalRefreshToken =
-      tokenResult?.newRefreshToken || mailInfo.refreshToken;
-
-    // 确定最终的协议类型
-    const finalProtocolType = determineFinalProtocolType(
-      mailInfo.protocolType,
-      protocolResult?.protocolType,
-    );
-
-    // 创建结果
-    const aggregatedError = aggregateErrors(errors);
-
-    if (isBanned) {
-      console.warn(`邮箱 ${mailInfo.email} 已被封禁`);
-    } else if (aggregatedError) {
-      console.error(`邮箱 ${mailInfo.email} 处理失败: ${aggregatedError}`);
+    // 处理协议检测结果
+    const protocolResult = protocolResults.get(email);
+    if (protocolResult) {
+      if (protocolResult.error) {
+        result.error = protocolResult.error;
+        result.isBanned = protocolResult.isBanned;
+      } else {
+        result.protocolType = determineFinalProtocolType(
+          mailInfo.protocolType,
+          protocolResult.protocolType,
+        );
+      }
     } else {
-      console.info(
-        `邮箱 ${mailInfo.email} 处理成功 - 协议: ${finalProtocolType}`,
-      );
+      result.protocolType = mailInfo.protocolType || "UNKNOWN";
     }
 
-    return {
-      email: mailInfo.email,
-      refreshToken: finalRefreshToken,
-      protocolType: finalProtocolType,
-      error: aggregatedError,
-      isBanned,
-    };
-  });
-}
-
-/**
- * 分类处理结果：将结果分为错误和成功两类
- */
-function categorizeProcessingResults(results: ProcessingResult[]): {
-  errorItems: ErrorResult[];
-  successItems: SuccessResult[];
-} {
-  const errorItems: ErrorResult[] = [];
-  const successItems: SuccessResult[] = [];
-
-  results.forEach((result) => {
-    if (result.error) {
-      errorItems.push({
-        email: result.email,
-        isBanned: result.isBanned,
-        error: result.error,
-      });
-      return;
+    // 处理 Token 刷新结果
+    const tokenResult = tokenResults.get(email);
+    if (tokenResult) {
+      if (tokenResult.error) {
+        // Token 刷新错误不影响主流程，只记录警告
+        console.warn(`Token 刷新失败 ${email}: ${tokenResult.error}`);
+        result.refreshToken = mailInfo.refreshToken; // 使用原始 token
+      } else {
+        result.refreshToken =
+          tokenResult.newRefreshToken || mailInfo.refreshToken;
+      }
+    } else {
+      result.refreshToken = mailInfo.refreshToken;
     }
 
-    if (result.refreshToken && result.protocolType) {
-      successItems.push({
-        email: result.email,
-        refreshToken: result.refreshToken,
-        protocolType: result.protocolType,
-      });
-    }
-  });
-
-  return { errorItems, successItems };
-}
-
-/**
- * 调度异步持久化操作：保存到数据库并更新缓存
- */
-function scheduleAsyncPersistence(
-  results: ProcessingResult[],
-  originalMailInfos: MailInfo[],
-  request: NextRequest,
-) {
-  // 筛选需要保存的邮箱：包括成功的和被封禁的
-  const accountsToSave = results.filter(
-    (result) => !result.error || result.isBanned,
-  );
-
-  if (accountsToSave.length === 0) {
-    console.log("没有需要保存的邮箱账户");
-    return;
+    results.push(result);
   }
 
-  // 异步执行持久化操作
-  Promise.resolve().then(async () => {
-    try {
-      // 准备数据
-      const mailInfosToSave = prepareMailInfosForSaving(
-        accountsToSave,
-        originalMailInfos,
-      );
-      const emailStatusMap = buildEmailStatusMap(accountsToSave);
-
-      // 保存到数据库
-      await saveAccountsToDatabase(mailInfosToSave);
-
-      // 更新缓存
-      updateEmailCache(emailStatusMap);
-
-      // 记录操作日志
-      await logOperations(results, request);
-
-      console.log("异步持久化操作完成");
-    } catch (error) {
-      console.error("异步持久化操作失败:", error);
-    }
-  });
-}
-
-/**
- * 准备要保存的邮件信息
- */
-function prepareMailInfosForSaving(
-  accountsToSave: ProcessingResult[],
-  originalMailInfos: MailInfo[],
-): MailInfo[] {
-  const originalInfoMap = new Map(
-    originalMailInfos.map((info) => [info.email, info]),
-  );
-
-  return accountsToSave.map((result) => {
-    const originalInfo = originalInfoMap.get(result.email)!;
-    return {
-      ...originalInfo,
-      refreshToken: result.refreshToken || originalInfo.refreshToken,
-      protocolType: result.protocolType || originalInfo.protocolType,
-    };
-  });
-}
-
-/**
- * 构建邮箱状态映射
- */
-function buildEmailStatusMap(
-  accountsToSave: ProcessingResult[],
-): Record<string, boolean> {
-  const statusMap: Record<string, boolean> = {};
-
-  accountsToSave.forEach((result) => {
-    statusMap[result.email] = result.isBanned;
-  });
-
-  return statusMap;
-}
-
-/**
- * 保存账户到数据库
- */
-async function saveAccountsToDatabase(
-  mailInfosToSave: MailInfo[],
-): Promise<void> {
-  for (const mailInfo of mailInfosToSave) {
-    await addMailAccount(mailInfo);
-  }
-  console.log(
-    `批量保存邮箱账户到数据库成功 - 插入数据: ${mailInfosToSave.length} 个`,
-  );
-}
-
-/**
- * 更新邮箱缓存
- */
-function updateEmailCache(emailStatusMap: Record<string, boolean>): void {
-  emailCacheManager.addEmailsWithStatus(emailStatusMap);
-  console.log(
-    `缓存更新完成，新增 ${Object.keys(emailStatusMap).length} 个邮箱状态`,
-  );
-}
-
-/**
- * 记录操作日志
- */
-async function logOperations(
-  results: ProcessingResult[],
-  request: NextRequest,
-): Promise<void> {
-  const clientIp =
-    request.headers.get("x-forwarded-for") ||
-    request.headers.get("x-real-ip") ||
-    "unknown";
-  const userAgent = request.headers.get("user-agent") || "unknown";
-
-  for (const result of results) {
-    let status: "success" | "error" | "partial" = "success";
-    let errorMessage: string | undefined;
-
-    if (result.error) {
-      status = "error";
-      errorMessage = result.error;
-    } else if (result.isBanned) {
-      status = "partial";
-      errorMessage = "邮箱已被封禁";
-    }
-
-    await logMailOperation(
-      result.email,
-      "batch_add",
-      status,
-      status === "success" ? 1 : 0,
-      errorMessage,
-      clientIp,
-      userAgent,
-    );
-  }
+  return results;
 }

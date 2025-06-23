@@ -11,7 +11,7 @@ export function EmailContentVerification({
   expiryMinutes,
 }: EmailContentVerificationProps) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center">
+    <div className="mt-20 flex flex-1 flex-col items-center justify-center">
       <div className="flex flex-col justify-center">
         <Snippet
           hideSymbol
