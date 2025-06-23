@@ -187,21 +187,7 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-4 text-center">
-            <p className="text-sm text-gray-500">首次登录将自动注册账号</p>
-            <div className="mt-2 flex justify-center gap-4">
-              <Link
-                href="/privacy"
-                className="text-sm font-medium text-indigo-400 transition-colors hover:text-indigo-300"
-              >
-                隐私政策
-              </Link>
-              <Link
-                href="/terms"
-                className="text-sm font-medium text-indigo-400 transition-colors hover:text-indigo-300"
-              >
-                服务条款
-              </Link>
-            </div>
+            <p className="mb-5 text-sm text-gray-500">首次登录将自动注册账号</p>
           </div>
         </CardBody>
       </Card>
