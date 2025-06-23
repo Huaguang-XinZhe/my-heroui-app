@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Input } from "@heroui/input";
@@ -28,8 +28,14 @@ export default function LoginPage() {
   const router = useRouter();
 
   // 如果已登录，重定向到首页
+  useEffect(() => {
+    if (session) {
+      router.push("/");
+    }
+  }, [session, router]);
+
+  // 如果已登录，显示加载状态或返回 null
   if (session) {
-    router.push("/");
     return null;
   }
 
@@ -182,12 +188,20 @@ export default function LoginPage() {
 
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-500">首次登录将自动注册账号</p>
-            <Link
-              href="/contact"
-              className="mb-4 mt-2 inline-block text-sm font-medium text-indigo-400 transition-colors hover:text-indigo-300"
-            >
-              遇到问题？联系客服
-            </Link>
+            <div className="mt-2 flex justify-center gap-4">
+              <Link
+                href="/privacy"
+                className="text-sm font-medium text-indigo-400 transition-colors hover:text-indigo-300"
+              >
+                隐私政策
+              </Link>
+              <Link
+                href="/terms"
+                className="text-sm font-medium text-indigo-400 transition-colors hover:text-indigo-300"
+              >
+                服务条款
+              </Link>
+            </div>
           </div>
         </CardBody>
       </Card>
