@@ -18,9 +18,10 @@ const handler = NextAuth({
     }),
   ],
   pages: {
-    signIn: "/auth/signin",
+    signIn: "/login", // 修正登录页面路径
+    error: "/login", // 错误时也重定向到登录页面
   },
-  debug: true, // 开启调试模式
+  debug: process.env.NODE_ENV === "development", // 只在开发环境启用调试
   session: {
     strategy: "jwt",
   },
@@ -38,6 +39,12 @@ const handler = NextAuth({
         session.user.isAdmin = token.isAdmin as boolean;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // 确保重定向到正确的 URL
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     },
   },
 });
