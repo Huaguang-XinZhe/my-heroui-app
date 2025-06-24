@@ -20,6 +20,12 @@ import { AuthButton } from "@/components/AuthButton";
 import { signIn } from "next-auth/react";
 import { showSuccessToast, showErrorToast } from "@/utils/toast";
 import { addEmailsToCache } from "@/cache/emailCache";
+import {
+  saveOAuthUser,
+  getOAuthUser,
+  clearOAuthUser,
+  OAuthUserInfo,
+} from "@/utils/oauthUserStorage";
 
 // 错误检查组件
 function ErrorChecker() {
@@ -50,6 +56,47 @@ function LoginForm() {
       router.push("/");
     }
   }, [session, router]);
+
+  // 保存 OAuth 用户信息到本地存储
+  useEffect(() => {
+    if (session?.user && status === "authenticated") {
+      const sessionUser = session.user as any;
+
+      // 检查是否是 OAuth 登录
+      if (sessionUser.userId) {
+        let provider: "google" | "linuxdo";
+        let userType: "oauth2-google" | "oauth2-linuxdo";
+
+        // 通过 username 字段或 email 格式判断提供商
+        if (sessionUser.username) {
+          // 有 username 字段说明是 Linux DO 用户
+          provider = "linuxdo";
+          userType = "oauth2-linuxdo";
+        } else {
+          // 没有 username 字段说明是 Google 用户
+          provider = "google";
+          userType = "oauth2-google";
+        }
+
+        const oauthUserInfo: OAuthUserInfo = {
+          id: sessionUser.userId,
+          nickname: sessionUser.name || undefined,
+          avatar_url: sessionUser.image || undefined,
+          user_type: userType,
+          level: sessionUser.trustLevel || undefined,
+          provider,
+          username: sessionUser.username || undefined,
+        };
+
+        // 检查本地是否已有该用户信息
+        const existingUser = getOAuthUser();
+        if (!existingUser || existingUser.id !== oauthUserInfo.id) {
+          saveOAuthUser(oauthUserInfo);
+          console.log("[Login] OAuth user info saved:", oauthUserInfo);
+        }
+      }
+    }
+  }, [session, status]);
 
   const handleCardKeySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
