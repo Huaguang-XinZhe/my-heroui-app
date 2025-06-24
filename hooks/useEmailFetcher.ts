@@ -70,6 +70,9 @@ export function useEmailFetcher({
         }
 
         if (result.data) {
+          // 无论是否获取到邮件，都更新邮箱的最后获取时间
+          updateEmailFetchTime(selectedEmail);
+
           if (result.data.email) {
             // 将获取到的邮件存储到 IndexedDB
             try {
@@ -81,9 +84,6 @@ export function useEmailFetcher({
               console.error("存储邮件失败:", storageError);
               // 存储失败不影响邮件显示，继续执行
             }
-
-            // 更新邮箱的最后获取时间
-            updateEmailFetchTime(selectedEmail);
 
             setEmail(result.data.email);
           } else {

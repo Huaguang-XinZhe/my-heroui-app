@@ -32,6 +32,7 @@ import {
   FaUpload,
   FaShield,
   FaDatabase,
+  FaArrowUpRightFromSquare,
 } from "react-icons/fa6";
 import { TbInfoCircle } from "react-icons/tb";
 
@@ -152,4 +153,8 @@ export const IconShield = ({ className }: IconProps) => (
 
 export const IconDatabase = ({ className }: IconProps) => (
   <FaDatabase className={className} />
+);
+
+export const IconExternalLink = ({ className }: IconProps) => (
+  <FaArrowUpRightFromSquare className={className} />
 );

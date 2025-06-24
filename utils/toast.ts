@@ -64,7 +64,7 @@ export function showInfoToast(
     title,
     description,
     endContent,
-    color: "primary",
+    color: "default",
     timeout: 3000,
   });
 }

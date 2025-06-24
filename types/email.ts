@@ -206,6 +206,8 @@ export interface CachedEmailInfo {
   protocolType: ProtocolType;
   lastFetchTime?: number;
   user_id?: string; // 新增
+  password?: string; // 邮箱密码
+  serviceProvider?: string; // 服务提供商
 }
 
 /**

@@ -35,7 +35,7 @@ export default function AdminBatchAddEmailsPage() {
   const { data: session, status } = useSession();
 
   const [emailInput, setEmailInput] = useState("");
-  const [protocolType, setProtocolType] = useState<ProtocolType>("IMAP");
+  const [protocolType, setProtocolType] = useState<ProtocolType>("UNKNOWN");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFailureDetails, setShowFailureDetails] = useState(false);
   const [failureData, setFailureData] = useState<{
@@ -75,6 +75,15 @@ export default function AdminBatchAddEmailsPage() {
   const handleSubmit = async () => {
     if (!emailInput.trim()) {
       showWarningToast("邮箱信息不能为空！", "请在文本框中输入邮箱数据");
+      return;
+    }
+
+    // 检查协议类型
+    if (protocolType === "UNKNOWN") {
+      showWarningToast(
+        "请选择协议类型",
+        "批量添加邮箱时必须选择确定的协议类型（IMAP 或 GRAPH）",
+      );
       return;
     }
 
@@ -147,7 +156,7 @@ export default function AdminBatchAddEmailsPage() {
 
       // 清空输入
       setEmailInput("");
-      setProtocolType("IMAP");
+      setProtocolType("UNKNOWN");
     } catch (error) {
       showErrorToast(
         "添加失败",

@@ -7,6 +7,7 @@ import { Spinner } from "@heroui/spinner";
 import { Header } from "@/components/Header";
 // import { HistorySidebar } from "@/components/HistorySidebar";
 import { EmailSidebar } from "@/components/EmailSidebar";
+import { CurrentEmailInfo } from "@/components/CurrentEmailInfo";
 import { FadeIn } from "@/components/animated-elements";
 import { EmailFetcher } from "@/components/EmailFetcher";
 import { EmailDisplay } from "@/components/EmailDisplay";
@@ -41,6 +42,7 @@ export default function HomePage() {
   }, [status, router]);
 
   const sidebarRefreshRef = useRef<(() => void) | null>(null);
+  const currentEmailInfoRefreshRef = useRef<(() => void) | null>(null);
   const triggerCooldownRef = useRef<((type: "inbox" | "junk") => void) | null>(
     null,
   );
@@ -63,6 +65,10 @@ export default function HomePage() {
   const handleSidebarRefresh = () => {
     if (sidebarRefreshRef.current) {
       sidebarRefreshRef.current();
+    }
+    // 同时刷新当前邮箱信息
+    if (currentEmailInfoRefreshRef.current) {
+      currentEmailInfoRefreshRef.current();
     }
   };
 
@@ -94,6 +100,14 @@ export default function HomePage() {
           <div className="flex max-w-2xl flex-1 flex-col gap-6 sm:min-w-[450px]">
             {/* 暂时隐藏邮箱输入和获取区域 */}
             {/* <EmailFetcher /> */}
+
+            {/* 当前邮箱信息 */}
+            <CurrentEmailInfo
+              selectedEmail={selectedEmail}
+              onRefreshInfo={(refreshFn) => {
+                currentEmailInfoRefreshRef.current = refreshFn;
+              }}
+            />
 
             {/* 收件箱 */}
             <EmailDisplay

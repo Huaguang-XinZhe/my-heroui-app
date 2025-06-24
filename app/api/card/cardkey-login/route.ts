@@ -102,22 +102,38 @@ export async function POST(request: NextRequest): Promise<Response> {
       // 第一次使用，分配新邮箱
       isFirstTime = true;
 
-      // 查找未分配的邮箱（user_id 为 SYSTEM_UNASSIGNED）
-      const { data: availableAccount, error: fetchError } = await supabase
+      // 优先查找 GRAPH 协议类型的未分配邮箱
+      let { data: availableAccount, error: fetchError } = await supabase
         .from("mail_accounts")
         .select(
           "email, refresh_token, protocol_type, service_provider, client_id, password, secondary_email, secondary_password",
         )
         .eq("user_id", "SYSTEM_UNASSIGNED")
         .eq("is_banned", false)
+        .eq("protocol_type", "GRAPH")
         .limit(1)
         .single();
 
+      // 如果没有 GRAPH 协议的邮箱，则查找其他可用邮箱
       if (fetchError || !availableAccount) {
-        return NextResponse.json(
-          { success: false, error: "暂无可用的邮箱账户，请稍后再试" },
-          { status: 503 },
-        );
+        const { data: fallbackAccount, error: fallbackError } = await supabase
+          .from("mail_accounts")
+          .select(
+            "email, refresh_token, protocol_type, service_provider, client_id, password, secondary_email, secondary_password",
+          )
+          .eq("user_id", "SYSTEM_UNASSIGNED")
+          .eq("is_banned", false)
+          .limit(1)
+          .single();
+
+        if (fallbackError || !fallbackAccount) {
+          return NextResponse.json(
+            { success: false, error: "暂无可用的邮箱账户，请稍后再试" },
+            { status: 503 },
+          );
+        }
+
+        availableAccount = fallbackAccount;
       }
 
       // 将邮箱分配给用户
@@ -153,10 +169,12 @@ export async function POST(request: NextRequest): Promise<Response> {
       refreshToken: accountData.refresh_token,
       protocolType: accountData.protocol_type,
       user_id: finalUserId,
+      password: accountData.password,
+      serviceProvider: accountData.service_provider,
     };
 
     console.log(
-      `卡密登录成功: ${accountData.email} - 用户: ${finalUserId} - 卡密: ${trimmedCardKey}`,
+      `卡密登录成功: ${accountData.email} (${accountData.protocol_type}) - 用户: ${finalUserId} - 卡密: ${trimmedCardKey}${isFirstTime ? " [首次分配]" : " [已有邮箱]"}`,
     );
 
     return NextResponse.json(

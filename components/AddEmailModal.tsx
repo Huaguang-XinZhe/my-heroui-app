@@ -140,13 +140,22 @@ export function AddEmailModal({
       if (result.success && result.data) {
         const { fromOthers, errors, successes } = result.data;
 
-        // 将成功添加的邮箱缓存起来
-        // todo 成功 Item 和缓存 Item 一致，可以优化
-        const successfulEmails: CachedEmailInfo[] = successes.map((item) => ({
-          email: item.email,
-          refreshToken: item.refreshToken,
-          protocolType: item.protocolType,
-        }));
+        // 将成功添加的邮箱缓存起来，包含密码和服务提供商信息
+        const successfulEmails: CachedEmailInfo[] = successes.map((item) => {
+          // 从原始输入中找到对应的完整邮箱信息
+          const originalMailInfo = newEmails.find(
+            (email) => email.email === item.email,
+          );
+
+          return {
+            email: item.email,
+            refreshToken: item.refreshToken,
+            protocolType: item.protocolType,
+            password: originalMailInfo?.password,
+            serviceProvider: originalMailInfo?.serviceProvider || "MICROSOFT",
+            user_id: currentUserId,
+          };
+        });
 
         if (successfulEmails.length > 0) {
           addEmailsToCache(successfulEmails);
