@@ -23,6 +23,7 @@ export async function createUser(
       nickname: userData.nickname,
       avatar_url: userData.avatar_url,
       user_type: userData.user_type,
+      level: userData.level,
     });
 
     if (error) {

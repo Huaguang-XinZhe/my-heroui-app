@@ -20,6 +20,12 @@ import {
   formatCardKeyDisplay,
   copyCardKeyWithToast,
 } from "@/utils/utils";
+import {
+  saveOAuthUser,
+  getOAuthUser,
+  clearOAuthUser,
+  OAuthUserInfo,
+} from "@/utils/oauthUserStorage";
 import { Logo } from "./icons/Logo";
 import { IconLogin } from "./icons/icons";
 import { TrialAccount } from "@/types/email";
@@ -40,6 +46,46 @@ export function Header() {
     }
   }, []);
 
+  // 保存 OAuth 用户信息到本地存储
+  useEffect(() => {
+    if (session?.user && status === "authenticated") {
+      const sessionUser = session.user as any;
+
+      // 检查是否是 OAuth 登录
+      if (sessionUser.userId) {
+        let provider: "google" | "linuxdo";
+        let userType: "oauth2-google" | "oauth2-linuxdo";
+
+        // 通过 username 字段或 email 格式判断提供商
+        if (sessionUser.username) {
+          // 有 username 字段说明是 Linux DO 用户
+          provider = "linuxdo";
+          userType = "oauth2-linuxdo";
+        } else {
+          // 没有 username 字段说明是 Google 用户
+          provider = "google";
+          userType = "oauth2-google";
+        }
+
+        const oauthUserInfo: OAuthUserInfo = {
+          id: sessionUser.userId,
+          nickname: sessionUser.name || undefined,
+          avatar_url: sessionUser.image || undefined,
+          user_type: userType,
+          level: sessionUser.trustLevel || undefined,
+          provider,
+          username: sessionUser.username || undefined,
+        };
+
+        // 检查本地是否已有该用户信息
+        const existingUser = getOAuthUser();
+        if (!existingUser || existingUser.id !== oauthUserInfo.id) {
+          saveOAuthUser(oauthUserInfo);
+        }
+      }
+    }
+  }, [session, status]);
+
   // 处理体验账户退出登录
   const handleTrialLogout = () => {
     // 清除所有用户数据
@@ -56,8 +102,19 @@ export function Header() {
 
   // 处理邮箱复制（OAuth2 用户）
   const handleCopyEmail = (email: string) => {
-    navigator.clipboard.writeText(email);
-    showSuccessToast("邮箱已复制", email);
+    // 检查是否是 Linux DO 格式的 email (@username • level level)
+    const linuxdoMatch = email.match(/^(@\w+)\s+•\s+\d+\s+level$/);
+
+    if (linuxdoMatch) {
+      // Linux DO 格式，只复制 @username 部分
+      const username = linuxdoMatch[1];
+      navigator.clipboard.writeText(username);
+      showSuccessToast("用户名已复制", username);
+    } else {
+      // 普通邮箱格式
+      navigator.clipboard.writeText(email);
+      showSuccessToast("邮箱已复制", email);
+    }
   };
 
   // 渲染用户头像和菜单
@@ -180,6 +237,7 @@ export function Header() {
                 onPress={() => {
                   // 清除所有用户数据
                   clearAllUserData();
+                  clearOAuthUser();
                   // 退出登录
                   signOut({ callbackUrl: "/login" });
                 }}
@@ -227,7 +285,7 @@ export function Header() {
       </NavbarContent>
 
       <NavbarContent className="hidden gap-4 sm:flex" justify="center">
-        <NavbarItem>
+        {/* <NavbarItem>
           <HeroLink color="foreground" href="#">
             功能
           </HeroLink>
@@ -241,7 +299,7 @@ export function Header() {
           <HeroLink color="foreground" href="#">
             集成
           </HeroLink>
-        </NavbarItem>
+        </NavbarItem> */}
       </NavbarContent>
 
       <NavbarContent justify="end">{renderUserMenu()}</NavbarContent>

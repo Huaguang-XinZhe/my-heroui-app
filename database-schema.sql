@@ -12,7 +12,8 @@ CREATE TABLE users (
     id VARCHAR(100) PRIMARY KEY, -- 邮箱或卡密作为user_id
     nickname VARCHAR(100), -- 用户昵称
     avatar_url TEXT, -- 头像URL
-    user_type VARCHAR(20) NOT NULL CHECK (user_type IN ('oauth2', 'card_key', 'system')), -- 用户类型：oauth2、card_key 或 system
+    user_type VARCHAR(30) NOT NULL CHECK (user_type IN ('oauth2-google', 'oauth2-linuxdo', 'card_key', 'system')), -- 用户类型：oauth2-google、oauth2-linuxdo、card_key 或 system
+    level INTEGER DEFAULT NULL, -- Linux DO 信任等级（仅 oauth2-linuxdo 用户有此字段）
     created_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'), -- 北京时间
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 );

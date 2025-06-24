@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Modal,
   ModalContent,
@@ -11,7 +11,7 @@ import {
 import { Button } from "@heroui/button";
 import { IconPlusCircle, IconClose, IconCheck } from "./icons/icons";
 import { EmailInputSection } from "./EmailInputSection";
-import { ProtocolType, CachedEmailInfo } from "@/types/email";
+import { ProtocolType, CachedEmailInfo, TrialAccount } from "@/types/email";
 import { parseEmailInput, parseEmailLine } from "@/utils/emailParser";
 import { batchAddAccounts } from "@/api/mailService";
 import { addEmailsToCache } from "@/cache/emailCache";
@@ -24,6 +24,8 @@ import {
 import { FailureDetailsModal } from "./FailureDetailsModal";
 import { FromOthersResult, ErrorResult } from "@/types/email";
 import { useFormatGuide } from "@/contexts/FormatGuideContext";
+import { useSession } from "next-auth/react";
+import { getOAuthUser } from "@/utils/oauthUserStorage";
 
 interface AddEmailModalProps {
   isOpen: boolean;
@@ -39,13 +41,51 @@ export function AddEmailModal({
   const { showFormatGuide, toggleFormatGuide, setShowFormatGuide } =
     useFormatGuide();
   const [emailInput, setEmailInput] = useState("");
-  const [protocolType, setProtocolType] = useState<ProtocolType>("IMAP");
+  const [protocolType, setProtocolType] = useState<ProtocolType>("UNKNOWN");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFailureDetails, setShowFailureDetails] = useState(false);
   const [failureData, setFailureData] = useState<{
     fromOthers: FromOthersResult[];
     errors: ErrorResult[];
   }>({ fromOthers: [], errors: [] });
+
+  const { data: session } = useSession();
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // 获取当前用户 ID
+  useEffect(() => {
+    let userId: string | null = null;
+
+    // 1. 检查是否是体验账户
+    const trialAccountData = localStorage.getItem("trialAccount");
+    if (trialAccountData) {
+      try {
+        const trialAccount: TrialAccount = JSON.parse(trialAccountData);
+        // 体验账户使用卡密作为用户 ID
+        userId = trialAccount.cardData?.originalCardKey || null;
+      } catch (error) {
+        console.error("解析体验账户数据失败:", error);
+      }
+    }
+
+    // 2. 检查是否是 OAuth 登录
+    if (!userId && session?.user) {
+      const sessionUser = session.user as any;
+      if (sessionUser.userId) {
+        userId = sessionUser.userId;
+      }
+    }
+
+    // 3. 从本地存储获取 OAuth 用户信息
+    if (!userId) {
+      const oauthUser = getOAuthUser();
+      if (oauthUser) {
+        userId = oauthUser.id;
+      }
+    }
+
+    setCurrentUserId(userId);
+  }, [session]);
 
   const handleSubmit = async () => {
     if (!emailInput.trim()) {
@@ -84,10 +124,17 @@ export function AddEmailModal({
         );
       }
 
+      // 检查是否有用户 ID
+      if (!currentUserId) {
+        showErrorToast("用户身份验证失败", "请重新登录后再试");
+        return;
+      }
+
       // 发送批量添加请求
       const result = await batchAddAccounts({
         mailInfos: newEmails,
         refreshNeeded: false, // todo 暂时设为 false，免得触发风控，之后要调回来
+        user_id: currentUserId, // 传递用户 ID
       });
 
       if (result.success && result.data) {
@@ -139,7 +186,7 @@ export function AddEmailModal({
 
         // 清空输入并关闭模态框
         setEmailInput("");
-        setProtocolType("IMAP");
+        setProtocolType("UNKNOWN");
         // 成功后隐藏格式说明
         setShowFormatGuide(false);
         onSuccess?.(successfulEmails);
@@ -171,7 +218,7 @@ export function AddEmailModal({
   const handleClose = () => {
     if (!isSubmitting) {
       setEmailInput("");
-      setProtocolType("IMAP");
+      setProtocolType("UNKNOWN");
       // 关闭弹窗时隐藏格式说明
       setShowFormatGuide(false);
       onClose();

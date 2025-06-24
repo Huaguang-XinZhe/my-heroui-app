@@ -46,11 +46,11 @@ export async function POST(request: NextRequest) {
         let user = await getUserByEmail(mailInfo.email);
 
         if (!user) {
-          // 如果用户不存在，创建一个新用户（假设是 oauth2 类型）
+          // 如果用户不存在，创建一个新用户（假设是 oauth2-google 类型）
           const created = await createUser({
             id: mailInfo.email,
             nickname: mailInfo.email.split("@")[0], // 使用邮箱前缀作为昵称
-            user_type: "oauth2",
+            user_type: "oauth2-google",
           });
 
           if (created) {

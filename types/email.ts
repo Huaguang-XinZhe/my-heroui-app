@@ -1,5 +1,9 @@
 export type ProtocolType = "IMAP" | "GRAPH" | "UNKNOWN";
-export type UserType = "oauth2" | "card_key" | "system";
+export type UserType =
+  | "oauth2-google"
+  | "oauth2-linuxdo"
+  | "card_key"
+  | "system";
 
 // =============================================
 // 体验账户相关类型
@@ -42,6 +46,7 @@ export interface User {
   nickname?: string;
   avatar_url?: string;
   user_type: UserType;
+  level?: number; // Linux DO 信任等级
   created_at?: string;
   updated_at?: string;
 }
@@ -54,6 +59,7 @@ export interface CreateUserRequest {
   nickname?: string;
   avatar_url?: string;
   user_type: UserType;
+  level?: number; // Linux DO 信任等级
 }
 
 // =============================================

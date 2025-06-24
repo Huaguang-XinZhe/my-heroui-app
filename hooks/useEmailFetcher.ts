@@ -69,22 +69,29 @@ export function useEmailFetcher({
           throw new Error(result.error || "获取邮件失败");
         }
 
-        if (result.data && result.data.email) {
-          // 将获取到的邮件存储到 IndexedDB
-          try {
-            await MailStorageManager.cacheMail(result.data.email);
-            console.log(
-              `邮件已存储到 IndexedDB: ${result.data.email.subject} (收件人: ${result.data.email.to.address}, 类型: ${type})`,
-            );
-          } catch (storageError) {
-            console.error("存储邮件失败:", storageError);
-            // 存储失败不影响邮件显示，继续执行
+        if (result.data) {
+          if (result.data.email) {
+            // 将获取到的邮件存储到 IndexedDB
+            try {
+              await MailStorageManager.cacheMail(result.data.email);
+              console.log(
+                `邮件已存储到 IndexedDB: ${result.data.email.subject} (收件人: ${result.data.email.to.address}, 类型: ${type})`,
+              );
+            } catch (storageError) {
+              console.error("存储邮件失败:", storageError);
+              // 存储失败不影响邮件显示，继续执行
+            }
+
+            // 更新邮箱的最后获取时间
+            updateEmailFetchTime(selectedEmail);
+
+            setEmail(result.data.email);
+          } else {
+            // 当 email 为 null 时，清空当前邮件状态
+            setEmail(null);
+            console.log(`没有获取到邮件 (${type}): ${selectedEmail}`);
           }
 
-          // 更新邮箱的最后获取时间
-          updateEmailFetchTime(selectedEmail);
-
-          setEmail(result.data.email);
           setHasFetched(true);
         }
       } catch (err) {

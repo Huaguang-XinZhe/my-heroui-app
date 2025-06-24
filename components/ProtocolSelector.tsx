@@ -17,7 +17,7 @@ export function ProtocolSelector({ value, onChange }: ProtocolSelectorProps) {
       <RadioGroup
         value={value}
         onValueChange={(val) => onChange(val as ProtocolType)}
-        defaultValue="IMAP"
+        defaultValue="UNKNOWN"
         orientation="horizontal"
         classNames={{
           wrapper: "gap-4",

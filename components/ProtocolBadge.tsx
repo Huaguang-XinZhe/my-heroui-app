@@ -41,7 +41,6 @@ export function ProtocolBadge({
   return (
     <span
       className={`inline-block rounded font-medium ${config.className} ${sizeClass} ${className}`}
-      title={`协议类型: ${config.text}`}
     >
       {config.text}
     </span>

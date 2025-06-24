@@ -113,12 +113,12 @@ export const EmailDisplayHeader = forwardRef<
         {showActions && (
           <div className="flex items-center gap-2">
             {/* 订阅按钮 */}
-            <EmailSubscriptionButton
+            {/* <EmailSubscriptionButton
               status={subscriptionStatus}
               onSubscribe={onSubscribe}
               onUnsubscribe={onUnsubscribe}
               disabled={isLoading}
-            />
+            /> */}
 
             <Tooltip
               content={

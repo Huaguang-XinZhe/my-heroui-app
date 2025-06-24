@@ -27,7 +27,7 @@ export function formatCardKeyDisplay(
 export function copyCardKeyWithToast(
   cardKey: string,
   showToast: (title: string, description?: string) => void,
-  showLength: number = 30,
+  showLength: number = 25,
 ): void {
   if (!cardKey) {
     showToast("复制失败", "卡密为空");

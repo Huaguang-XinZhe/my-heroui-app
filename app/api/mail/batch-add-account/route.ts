@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       const created = await createUser({
         id: userId,
         nickname: userId.includes("@") ? userId.split("@")[0] : userId,
-        user_type: userId.includes("@") ? "oauth2" : "card_key",
+        user_type: userId.includes("@") ? "oauth2-google" : "card_key",
       });
 
       if (!created) {
@@ -113,8 +113,21 @@ export async function POST(request: NextRequest) {
       body.refreshNeeded,
     );
 
+    // 3.1. 将协议检测和 token 刷新的结果更新到 mailInfos 中
+    const updatedMailInfos = updateMailInfosWithProcessingResults(
+      processedMailInfos,
+      processingResults,
+    );
+
+    // 调试日志：显示协议类型更新情况
+    for (const mailInfo of updatedMailInfos) {
+      console.log(
+        `最终邮箱协议类型 ${mailInfo.email}: ${mailInfo.protocolType}`,
+      );
+    }
+
     // 4. 使用新的数据库函数批量添加
-    const dbResult = await batchAddMailAccounts(processedMailInfos, userId);
+    const dbResult = await batchAddMailAccounts(updatedMailInfos, userId);
 
     const elapsed = Date.now() - startTime;
     console.log(
@@ -265,6 +278,37 @@ async function executeTokenRefresh(
   }
 
   return results;
+}
+
+/**
+ * 将协议检测和 token 刷新的结果更新到 mailInfos 中
+ */
+function updateMailInfosWithProcessingResults(
+  originalMailInfos: MailInfo[],
+  processingResults: ProcessingResult[],
+): MailInfo[] {
+  const updatedMailInfos: MailInfo[] = [];
+
+  for (const mailInfo of originalMailInfos) {
+    const processingResult = processingResults.find(
+      (result) => result.email === mailInfo.email,
+    );
+
+    if (processingResult) {
+      // 创建更新后的 mailInfo
+      const updatedMailInfo: MailInfo = {
+        ...mailInfo,
+        protocolType: processingResult.protocolType || mailInfo.protocolType,
+        refreshToken: processingResult.refreshToken || mailInfo.refreshToken,
+      };
+      updatedMailInfos.push(updatedMailInfo);
+    } else {
+      // 如果没有找到对应的处理结果，使用原始 mailInfo
+      updatedMailInfos.push(mailInfo);
+    }
+  }
+
+  return updatedMailInfos;
 }
 
 /**

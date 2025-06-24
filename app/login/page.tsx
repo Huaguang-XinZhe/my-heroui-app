@@ -11,7 +11,7 @@ import { Form } from "@heroui/form";
 import { FcGoogle } from "react-icons/fc"; // Google 图标
 import { FaInfoCircle } from "react-icons/fa"; // 信息图标
 import { FaKey } from "react-icons/fa"; // 钥匙图标
-import { FengziLogo } from "@/components/icons/FengziLogo";
+
 import { Logo } from "@/components/icons/Logo";
 import { SpinnerIcon } from "@/components/icons/SpinnerIcon";
 import { motion, AnimatePresence } from "framer-motion";
@@ -104,6 +104,10 @@ export default function LoginPage() {
     signIn("google", { callbackUrl: "/" });
   };
 
+  const handleLinuxDOSignIn = () => {
+    signIn("linuxdo", { callbackUrl: "/" });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 100 }}
@@ -177,7 +181,17 @@ export default function LoginPage() {
 
           {/* 授权登录区域 */}
           <div className="grid grid-cols-2 gap-4">
-            <AuthButton icon={<FengziLogo />} text="Fengzi 授权" />
+            <AuthButton
+              icon={
+                <img
+                  src="/linuxdo-logo.png"
+                  alt="Linux DO"
+                  className="h-5 w-5"
+                />
+              }
+              text="LinuxDO 授权"
+              onPress={handleLinuxDOSignIn}
+            />
 
             <AuthButton
               icon={<FcGoogle />}

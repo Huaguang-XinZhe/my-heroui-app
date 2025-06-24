@@ -70,10 +70,7 @@ export function EmailItem({ account, isSelected, onSelect }: EmailItemProps) {
             <ProtocolBadge protocolType={account.protocolType} />
 
             {/* 邮箱地址 - 始终允许截断以防止溢出 */}
-            <h3
-              className="min-w-0 flex-1 truncate text-sm font-medium text-gray-200"
-              title={account.email}
-            >
+            <h3 className="min-w-0 flex-1 truncate text-sm font-medium text-gray-200">
               {account.email}
             </h3>
           </div>
@@ -81,10 +78,7 @@ export function EmailItem({ account, isSelected, onSelect }: EmailItemProps) {
           {/* 获取时间（仅在不需要显示在下方时显示） */}
           {timeDisplay && !timeDisplay.showBelow && (
             <div className="ml-2 shrink-0">
-              <span
-                className="text-xs text-gray-500"
-                title={`上次获取：${new Date(account.lastFetchTime!).toLocaleString("zh-CN")}`}
-              >
+              <span className="text-xs text-gray-500">
                 {timeDisplay.display}
               </span>
             </div>
@@ -94,12 +88,7 @@ export function EmailItem({ account, isSelected, onSelect }: EmailItemProps) {
         {/* 第二行：长日期或其他需要在下方显示的时间 */}
         {timeDisplay?.showBelow && (
           <div className="mt-1 flex justify-start pl-6">
-            <span
-              className="text-xs text-gray-500"
-              title={`上次获取：${new Date(account.lastFetchTime!).toLocaleString("zh-CN")}`}
-            >
-              {timeDisplay.display}
-            </span>
+            <span className="text-xs text-gray-500">{timeDisplay.display}</span>
           </div>
         )}
       </CardBody>

@@ -71,15 +71,18 @@ export function useEmailDisplay({
         emailState.setEmail(cachedEmailContent);
         emailState.setHasFetched(true);
       } else {
-        // 没有缓存时才获取最新邮件
-        const fetchLatestEmail = async () => {
-          try {
-            await fetchEmails("inbox");
-          } catch (error) {
-            // fetchEmails 内部已经处理了错误
-          }
-        };
-        fetchLatestEmail();
+        // 只有在没有进行过任何获取操作时才自动获取收件箱邮件
+        // 如果用户已经获取过邮件（无论成功失败），就不再自动获取
+        if (!emailState.hasFetched) {
+          const fetchLatestEmail = async () => {
+            try {
+              await fetchEmails("inbox");
+            } catch (error) {
+              // fetchEmails 内部已经处理了错误
+            }
+          };
+          fetchLatestEmail();
+        }
       }
     } else {
       // 清理状态
