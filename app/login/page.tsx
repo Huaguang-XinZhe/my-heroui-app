@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@heroui/input";
@@ -21,14 +21,10 @@ import { signIn } from "next-auth/react";
 import { showSuccessToast, showErrorToast } from "@/utils/toast";
 import { addEmailsToCache } from "@/cache/emailCache";
 
-export default function LoginPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+// 错误检查组件
+function ErrorChecker() {
   const searchParams = useSearchParams();
-  const [cardKey, setCardKey] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  // 检查是否有错误参数
   useEffect(() => {
     const error = searchParams.get("error");
     if (error) {
@@ -36,6 +32,15 @@ export default function LoginPage() {
       showErrorToast(`登录失败: ${error}`);
     }
   }, [searchParams]);
+
+  return null;
+}
+
+function LoginForm() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [cardKey, setCardKey] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // 检查登录状态
   useEffect(() => {
@@ -48,7 +53,6 @@ export default function LoginPage() {
 
   const handleCardKeySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (!cardKey.trim()) {
       showErrorToast("请输入卡密");
       return;
@@ -57,47 +61,39 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/card/cardkey-login", {
+      const response = await fetch("/api/card/batch-verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          cardKey: cardKey.trim(),
+          cardKeys: [cardKey.trim()],
         }),
       });
 
-      const result = await response.json();
+      if (!response.ok) {
+        throw new Error("网络错误");
+      }
 
-      if (result.success && result.accountData) {
-        const message = result.isFirstTime
-          ? `卡密验证成功！已为您分配专属邮箱账户`
-          : `欢迎回来！卡密验证成功`;
+      const data = await response.json();
 
-        showSuccessToast(message);
+      if (data.success && data.results?.[0]?.success) {
+        const result = data.results[0];
+        showSuccessToast(`验证成功！获得 ${result.emailCount} 个邮箱账号`);
 
         // 将邮箱添加到缓存
-        if (result.cacheEmailInfo) {
-          addEmailsToCache([result.cacheEmailInfo]);
+        if (result.emails?.length > 0) {
+          await addEmailsToCache(result.emails);
         }
 
-        // 存储体验账户信息到 localStorage
-        localStorage.setItem(
-          "trialAccount",
-          JSON.stringify({
-            ...result.accountData,
-            cardData: {
-              ...result.userSession.cardData,
-              originalCardKey: cardKey.trim(), // 保存原始卡密
-            },
-            isTrialAccount: true,
-          }),
-        );
+        // 清空输入框
+        setCardKey("");
 
-        // 重定向到首页
+        // 跳转到首页
         router.push("/");
       } else {
-        showErrorToast(result.error || "卡密验证失败，请检查卡密是否正确");
+        const errorMsg = data.results?.[0]?.error || "卡密验证失败";
+        showErrorToast(errorMsg);
       }
     } catch (error) {
       console.error("卡密验证失败:", error);
@@ -139,50 +135,35 @@ export default function LoginPage() {
           </p>
         </CardHeader>
 
-        <CardBody className="space-y-6 px-8 pt-6">
-          {/* 卡密登录区域 - 使用表单包装 */}
-          <Form onSubmit={handleCardKeySubmit} className="space-y-4">
+        <CardBody className="space-y-6 px-8 pb-8">
+          {/* 卡密验证区域 */}
+          <Form className="space-y-4" onSubmit={handleCardKeySubmit}>
             <Input
-              isClearable
-              onClear={() => setCardKey("")}
-              placeholder="请输入卡密（by 华光共享号）"
+              isRequired
+              label="卡密"
+              placeholder="请输入您的卡密"
               value={cardKey}
-              onChange={(e) => setCardKey(e.target.value)}
-              size="lg"
-              radius="lg"
-              startContent={
-                <div className="pointer-events-none flex items-center text-indigo-500">
-                  <FaKey className="h-4 w-4" />
-                </div>
-              }
+              onValueChange={setCardKey}
+              startContent={<FaKey className="text-lg text-gray-400" />}
+              variant="flat"
               classNames={{
-                input: "ml-1",
-                inputWrapper: [
-                  "bg-gray-900",
-                  "group-hover:bg-gray-875", // 这个样式会生效，普通的 hover 或者 !hover 没用❗
-                  "group-data-[focus=true]:bg-gray-900",
-                ],
+                input: "bg-transparent",
+                inputWrapper:
+                  "bg-gray-800/50 border border-gray-700 hover:border-indigo-500 focus-within:border-indigo-500 transition-colors",
               }}
             />
 
             <Button
               type="submit"
-              size="lg"
-              radius="lg"
               color="primary"
+              variant="solid"
+              size="lg"
+              className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 font-semibold text-white hover:from-indigo-600 hover:to-purple-700"
               isLoading={isLoading}
-              spinner={<SpinnerIcon className="h-5 w-5 animate-spin" />}
-              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 font-medium transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+              spinner={<SpinnerIcon />}
             >
-              <span className="inline-flex items-center">验证并登录</span>
+              {isLoading ? "验证中..." : "验证卡密"}
             </Button>
-
-            <div className="flex rounded-lg border-l-4 border-indigo-500 bg-indigo-900/20 p-4">
-              <FaInfoCircle className="mt-0.5 w-8 text-indigo-400" />
-              <p className="ml-2 text-sm font-medium text-indigo-300">
-                卡密可重复使用，首次使用时将自动分配邮箱账户。请务必妥善保存，这是卡密登录的唯一凭证！
-              </p>
-            </div>
           </Form>
 
           {/* 分割线 */}
@@ -215,5 +196,16 @@ export default function LoginPage() {
         </CardBody>
       </Card>
     </motion.div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <ErrorChecker />
+      </Suspense>
+      <LoginForm />
+    </>
   );
 }
