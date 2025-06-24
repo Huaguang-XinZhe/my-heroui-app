@@ -61,39 +61,47 @@ function LoginForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/card/batch-verify", {
+      const response = await fetch("/api/card/cardkey-login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          cardKeys: [cardKey.trim()],
+          cardKey: cardKey.trim(),
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("网络错误");
-      }
+      const result = await response.json();
 
-      const data = await response.json();
+      if (result.success && result.accountData) {
+        const message = result.isFirstTime
+          ? `卡密验证成功！已为您分配专属邮箱账户`
+          : `欢迎回来！卡密验证成功`;
 
-      if (data.success && data.results?.[0]?.success) {
-        const result = data.results[0];
-        showSuccessToast(`验证成功！获得 ${result.emailCount} 个邮箱账号`);
+        showSuccessToast(message);
 
         // 将邮箱添加到缓存
-        if (result.emails?.length > 0) {
-          await addEmailsToCache(result.emails);
+        if (result.cacheEmailInfo) {
+          addEmailsToCache([result.cacheEmailInfo]);
         }
 
-        // 清空输入框
-        setCardKey("");
+        // 存储体验账户信息到 localStorage
+        localStorage.setItem(
+          "trialAccount",
+          JSON.stringify({
+            ...result.accountData,
+            cardData: {
+              ...result.userSession.cardData,
+              originalCardKey: cardKey.trim(), // 保存原始卡密
+            },
+            isTrialAccount: true,
+          }),
+        );
 
-        // 跳转到首页
+        // 重定向到首页
         router.push("/");
       } else {
-        const errorMsg = data.results?.[0]?.error || "卡密验证失败";
-        showErrorToast(errorMsg);
+        showErrorToast(result.error || "卡密验证失败，请检查卡密是否正确");
       }
     } catch (error) {
       console.error("卡密验证失败:", error);
@@ -135,35 +143,50 @@ function LoginForm() {
           </p>
         </CardHeader>
 
-        <CardBody className="space-y-6 px-8 pb-8">
-          {/* 卡密验证区域 */}
-          <Form className="space-y-4" onSubmit={handleCardKeySubmit}>
+        <CardBody className="space-y-6 px-8 pt-6">
+          {/* 卡密登录区域 - 使用表单包装 */}
+          <Form onSubmit={handleCardKeySubmit} className="space-y-4">
             <Input
-              isRequired
-              label="卡密"
-              placeholder="请输入您的卡密"
+              isClearable
+              onClear={() => setCardKey("")}
+              placeholder="请输入卡密（by 华光共享号）"
               value={cardKey}
-              onValueChange={setCardKey}
-              startContent={<FaKey className="text-lg text-gray-400" />}
-              variant="flat"
+              onChange={(e) => setCardKey(e.target.value)}
+              size="lg"
+              radius="lg"
+              startContent={
+                <div className="pointer-events-none flex items-center text-indigo-500">
+                  <FaKey className="h-4 w-4" />
+                </div>
+              }
               classNames={{
-                input: "bg-transparent",
-                inputWrapper:
-                  "bg-gray-800/50 border border-gray-700 hover:border-indigo-500 focus-within:border-indigo-500 transition-colors",
+                input: "ml-1",
+                inputWrapper: [
+                  "bg-gray-900",
+                  "group-hover:bg-gray-875", // 这个样式会生效，普通的 hover 或者 !hover 没用❗
+                  "group-data-[focus=true]:bg-gray-900",
+                ],
               }}
             />
 
             <Button
               type="submit"
-              color="primary"
-              variant="solid"
               size="lg"
-              className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 font-semibold text-white hover:from-indigo-600 hover:to-purple-700"
+              radius="lg"
+              color="primary"
               isLoading={isLoading}
-              spinner={<SpinnerIcon />}
+              spinner={<SpinnerIcon className="h-5 w-5 animate-spin" />}
+              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 font-medium transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-lg"
             >
-              {isLoading ? "验证中..." : "验证卡密"}
+              <span className="inline-flex items-center">验证并登录</span>
             </Button>
+
+            <div className="flex rounded-lg border-l-4 border-indigo-500 bg-indigo-900/20 p-4">
+              <FaInfoCircle className="mt-0.5 w-8 text-indigo-400" />
+              <p className="ml-2 text-sm font-medium text-indigo-300">
+                卡密可重复使用，首次使用时将自动分配邮箱账户。请务必妥善保存，这是卡密登录的唯一凭证！
+              </p>
+            </div>
           </Form>
 
           {/* 分割线 */}
