@@ -12,7 +12,7 @@ import { Image } from "@heroui/image";
 import { ScrollShadow } from "@heroui/scroll-shadow";
 import { Email } from "@/types/email";
 import { getFaviconUrl, formatEmailDate } from "@/utils/utils";
-import { EmailSnippet } from "@/components/EmailSnippet";
+import { EmailSnippet } from "@/components/email/EmailSnippet";
 
 interface EmailViewModalProps {
   isOpen: boolean;

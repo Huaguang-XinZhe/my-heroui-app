@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { IconCircle, IconWarning, IconStop } from "./icons/icons";
+import { IconCircle, IconWarning, IconStop } from "@/components/icons/icons";
 
 interface StatusBadgeProps {
   text: string;

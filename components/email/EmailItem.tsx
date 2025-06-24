@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { Card, CardBody } from "@heroui/card";
-import { ProtocolBadge } from "./ProtocolBadge";
+import { ProtocolBadge } from "@/components/ui/ProtocolBadge";
 import { CachedEmailInfo } from "@/types/email";
 import { getTimeDisplay } from "@/utils/utils";
 

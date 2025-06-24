@@ -2,7 +2,7 @@
 
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Button } from "@heroui/button";
-import { IconClose } from "./icons/icons";
+import { IconClose } from "@/components/icons/icons";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { useFormatGuide } from "@/contexts/FormatGuideContext";

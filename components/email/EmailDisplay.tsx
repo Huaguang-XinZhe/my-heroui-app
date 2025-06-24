@@ -10,10 +10,10 @@ import {
   EmailDisplayError,
   EmailDisplayNoData,
   EmailInfoHeader,
-  EmailContent,
   EmailSubscriptionStatus,
-} from "./email-display";
-import { EmailDisplayHeaderRef } from "./email-display/EmailDisplayHeader";
+} from "@/components/email";
+import { EmailContent } from "./EmailContent";
+import { EmailDisplayHeaderRef } from "@/components/email/EmailDisplayHeader";
 
 interface EmailDisplayProps {
   selectedEmail?: string; // 选中的邮箱

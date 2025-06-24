@@ -4,7 +4,7 @@ import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import clsx from "clsx";
-import { Background } from "@/components/Background";
+import { Background } from "@/components/layout/Background";
 
 // 客户端组件不能导出 metadata❗
 export const metadata: Metadata = {

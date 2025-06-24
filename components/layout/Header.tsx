@@ -26,8 +26,8 @@ import {
   clearOAuthUser,
   OAuthUserInfo,
 } from "@/utils/oauthUserStorage";
-import { Logo } from "./icons/Logo";
-import { IconLogin } from "./icons/icons";
+import { Logo } from "@/components/icons/Logo";
+import { IconLogin } from "@/components/icons/icons";
 import { TrialAccount } from "@/types/email";
 
 export function Header() {

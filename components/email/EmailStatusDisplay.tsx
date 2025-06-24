@@ -2,9 +2,9 @@
 
 import { Button } from "@heroui/button";
 import { Tooltip } from "@heroui/tooltip";
-import { StatusBadge } from "./StatusBadge";
-import { EmailSnippet } from "./EmailSnippet";
-import { IconStop, IconRefresh } from "./icons/icons";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { EmailSnippet } from "@/components/email/EmailSnippet";
+import { IconStop, IconRefresh } from "@/components/icons/icons";
 
 interface EmailStatusDisplayProps {
   isListening: boolean;
@@ -80,7 +80,7 @@ export function EmailStatusDisplay({
         )}
         <EmailSnippet email={email} className="min-w-0 flex-grow" />
       </div>
-      
+
       {/* 桌面端按钮 */}
       <Button
         onPress={statusConfig.button.action}
@@ -92,7 +92,7 @@ export function EmailStatusDisplay({
       >
         {statusConfig.button.text}
       </Button>
-      
+
       {/* 移动端按钮 */}
       <Button
         onPress={statusConfig.button.action}

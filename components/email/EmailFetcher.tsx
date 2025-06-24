@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Card } from "@heroui/card";
-import { IconInbox, IconKey, IconPlay } from "./icons/icons";
-import { EmailStatusDisplay } from "./EmailStatusDisplay";
+import { IconInbox, IconKey, IconPlay } from "@/components/icons/icons";
+import { EmailStatusDisplay } from "@/components/email/EmailStatusDisplay";
 
 interface EmailFetcherProps {
   onSubmit?: (value: string) => void;

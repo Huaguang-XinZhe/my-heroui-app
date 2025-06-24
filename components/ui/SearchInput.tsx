@@ -1,5 +1,5 @@
 import { Input } from "@heroui/input";
-import { IconSearch } from "./icons/icons";
+import { IconSearch } from "@/components/icons/icons";
 
 interface SearchInputProps {
   placeholder?: string;

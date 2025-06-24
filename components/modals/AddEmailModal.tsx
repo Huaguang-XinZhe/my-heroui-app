@@ -9,8 +9,8 @@ import {
   ModalFooter,
 } from "@heroui/modal";
 import { Button } from "@heroui/button";
-import { IconPlusCircle, IconClose, IconCheck } from "./icons/icons";
-import { EmailInputSection } from "./EmailInputSection";
+import { IconPlusCircle, IconClose, IconCheck } from "@/components/icons/icons";
+import { EmailInputSection } from "@/components/email/EmailInputSection";
 import { ProtocolType, CachedEmailInfo, TrialAccount } from "@/types/email";
 import { parseEmailInput, parseEmailLine } from "@/utils/emailParser";
 import { batchAddAccounts } from "@/api/mailService";

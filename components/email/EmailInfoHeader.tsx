@@ -6,7 +6,7 @@ import { Image } from "@heroui/image";
 import { IconEye } from "@/components/icons/icons";
 import { Email } from "@/types/email";
 import { getFaviconUrl, formatEmailDate } from "@/utils/utils";
-import { EmailViewModal } from "@/components/EmailViewModal";
+import { EmailViewModal } from "@/components/modals/EmailViewModal";
 
 interface EmailInfoHeaderProps {
   email: Email;

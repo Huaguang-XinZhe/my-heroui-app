@@ -10,7 +10,7 @@ import {
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { Tooltip } from "@heroui/tooltip";
-import { IconClose, IconWarning, IconRefresh } from "./icons/icons";
+import { IconClose, IconWarning, IconRefresh } from "@/components/icons/icons";
 import { FromOthersResult, ErrorResult } from "@/types/email";
 
 interface FailureDetailsModalProps {

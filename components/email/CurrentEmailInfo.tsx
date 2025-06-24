@@ -5,7 +5,7 @@ import { Card } from "@heroui/card";
 import { Snippet } from "@heroui/snippet";
 import { Button } from "@heroui/button";
 import { Tooltip } from "@heroui/tooltip";
-import { IconAt, IconShield, IconExternalLink } from "./icons/icons";
+import { IconAt, IconShield, IconExternalLink } from "@/components/icons/icons";
 import { getCachedEmails } from "@/cache/emailCache";
 import { CachedEmailInfo } from "@/types/email";
 import { showErrorToast, showSuccessToast } from "@/utils/toast";

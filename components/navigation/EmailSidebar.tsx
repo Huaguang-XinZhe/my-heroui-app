@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { AddEmailModal } from "./AddEmailModal";
-import { EmailItem } from "./EmailItem";
-import { IconAt, IconPlus } from "./icons/icons";
+import { AddEmailModal } from "@/components/modals/AddEmailModal";
+import { EmailItem } from "@/components/email/EmailItem";
+import { IconAt, IconPlus } from "@/components/icons/icons";
 import { Button } from "@heroui/button";
 import { ScrollShadow } from "@heroui/scroll-shadow";
-import { SearchInput } from "./SearchInput";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { getCachedEmails } from "@/cache/emailCache";
 import { CachedEmailInfo } from "@/types/email";
 

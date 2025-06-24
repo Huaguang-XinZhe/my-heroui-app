@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Button } from "@heroui/button";
-import { IconEye, IconFile, IconUpload } from "./icons/icons";
-import { ProtocolSelector } from "./ProtocolSelector";
+import { IconEye, IconFile, IconUpload } from "@/components/icons/icons";
+import { ProtocolSelector } from "@/components/ui/ProtocolSelector";
 import { ProtocolType } from "@/types/email";
 import { countValidEmailLines } from "@/utils/emailParser";
 import {
