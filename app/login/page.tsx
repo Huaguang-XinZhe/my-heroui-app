@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Card, CardBody, CardHeader } from "@heroui/card";
@@ -22,22 +22,29 @@ import { showSuccessToast, showErrorToast } from "@/utils/toast";
 import { addEmailsToCache } from "@/cache/emailCache";
 
 export default function LoginPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [cardKey, setCardKey] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { data: session } = useSession();
-  const router = useRouter();
 
-  // 如果已登录，重定向到首页
+  // 检查是否有错误参数
   useEffect(() => {
+    const error = searchParams.get("error");
+    if (error) {
+      console.log("[Login] OAuth error detected:", error);
+      showErrorToast(`登录失败: ${error}`);
+    }
+  }, [searchParams]);
+
+  // 检查登录状态
+  useEffect(() => {
+    console.log("[Login] Session status:", status);
     if (session) {
+      console.log("[Login] User already logged in, redirecting to home");
       router.push("/");
     }
   }, [session, router]);
-
-  // 如果已登录，显示加载状态或返回 null
-  if (session) {
-    return null;
-  }
 
   const handleCardKeySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -101,10 +108,12 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = () => {
+    console.log("[Login] Attempting Google sign in");
     signIn("google", { callbackUrl: "/" });
   };
 
   const handleLinuxDOSignIn = () => {
+    console.log("[Login] Attempting LinuxDO sign in");
     signIn("linuxdo", { callbackUrl: "/" });
   };
 
