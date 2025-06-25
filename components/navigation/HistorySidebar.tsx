@@ -1,9 +1,9 @@
 "use client";
 
-import { IconHistory } from "./icons/icons";
+import { IconHistory } from "@/components/icons/icons";
 import { ScrollShadow } from "@heroui/scroll-shadow";
 import { HistorySection } from "./HistorySection";
-import { SearchInput } from "./SearchInput";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { useState } from "react";
 
 // 定义历史数据集合

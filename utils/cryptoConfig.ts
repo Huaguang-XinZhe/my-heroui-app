@@ -2,7 +2,7 @@
 // 私钥仅在服务器端使用，客户端不再直接处理加密
 
 // 默认私钥 - 仅在服务器端使用
-const DEFAULT_PRIVATE_KEY = "R9>0E=i!.,Qg";
+const DEFAULT_PRIVATE_KEY = "xxx";
 
 // 获取私钥的函数 - 仅在服务器端调用
 export function getCryptoPrivateKey(): string {
