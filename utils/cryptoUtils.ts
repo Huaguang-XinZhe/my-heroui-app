@@ -22,7 +22,14 @@ export function simpleEncrypt(text: string, key?: string): string {
     result[i] = String.fromCharCode(charCode);
   }
 
-  return btoa(result.join("")); // base64编码
+  // 使用 Node.js 兼容的 base64 编码
+  if (typeof window !== "undefined" && typeof btoa !== "undefined") {
+    // 浏览器环境
+    return btoa(result.join(""));
+  } else {
+    // Node.js 环境
+    return Buffer.from(result.join(""), "binary").toString("base64");
+  }
 }
 
 /**
@@ -31,7 +38,16 @@ export function simpleEncrypt(text: string, key?: string): string {
 export function simpleDecrypt(encrypted: string, key?: string): string {
   const privateKey = key || getPrivateKey();
   try {
-    const decoded = atob(encrypted); // base64解码
+    // 使用 Node.js 兼容的 base64 解码
+    let decoded: string;
+    if (typeof window !== "undefined" && typeof atob !== "undefined") {
+      // 浏览器环境
+      decoded = atob(encrypted);
+    } else {
+      // Node.js 环境
+      decoded = Buffer.from(encrypted, "base64").toString("binary");
+    }
+
     const decodedLen = decoded.length;
     const keyLen = privateKey.length;
     const result: string[] = new Array(decodedLen); // 预分配数组
@@ -43,8 +59,10 @@ export function simpleDecrypt(encrypted: string, key?: string): string {
     }
 
     return result.join("");
-  } catch {
-    throw new Error("解密失败");
+  } catch (error) {
+    throw new Error(
+      `解密失败: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
@@ -134,26 +152,58 @@ function simpleDecompress(str: string): string {
  * 生成带前缀的加密令牌
  */
 export function generateToken(data: any, prefix: string, key?: string): string {
-  const privateKey = key || getPrivateKey();
-  // 序列化为紧凑的字符串
-  const jsonData = JSON.stringify(data);
+  try {
+    const privateKey = key || getPrivateKey();
+    const isDebug = process.env.NODE_ENV === "development";
 
-  // 压缩数据
-  const compressedData = simpleCompress(jsonData);
+    if (isDebug)
+      console.log("generateToken - 开始生成令牌，私钥长度:", privateKey.length);
 
-  // 使用简单加密
-  const encrypted = simpleEncrypt(compressedData, privateKey);
+    // 序列化为紧凑的字符串
+    const jsonData = JSON.stringify(data);
+    if (isDebug)
+      console.log(
+        "generateToken - JSON 序列化完成，数据长度:",
+        jsonData.length,
+      );
 
-  // 先移除 base64 特殊字符
-  const cleanEncrypted = encrypted.replace(/[+/=]/g, "");
+    // 压缩数据
+    const compressedData = simpleCompress(jsonData);
+    if (isDebug)
+      console.log(
+        "generateToken - 数据压缩完成，压缩后长度:",
+        compressedData.length,
+      );
 
-  // 计算校验和（基于清理后的数据）
-  const checksum = createSimpleChecksum(cleanEncrypted);
+    // 使用简单加密
+    const encrypted = simpleEncrypt(compressedData, privateKey);
+    if (isDebug)
+      console.log("generateToken - 加密完成，加密数据长度:", encrypted.length);
 
-  // 生成最终令牌：prefix + 校验和 + 清理后的加密数据
-  const token = prefix + checksum + cleanEncrypted;
+    // 先移除 base64 特殊字符
+    const cleanEncrypted = encrypted.replace(/[+/=]/g, "");
+    if (isDebug)
+      console.log(
+        "generateToken - 清理特殊字符完成，清理后长度:",
+        cleanEncrypted.length,
+      );
 
-  return token;
+    // 计算校验和（基于清理后的数据）
+    const checksum = createSimpleChecksum(cleanEncrypted);
+    if (isDebug) console.log("generateToken - 校验和生成完成:", checksum);
+
+    // 生成最终令牌：prefix + 校验和 + 清理后的加密数据
+    const token = prefix + checksum + cleanEncrypted;
+    if (isDebug)
+      console.log("generateToken - 令牌生成完成，最终长度:", token.length);
+
+    return token;
+  } catch (error) {
+    console.error("generateToken - 生成令牌时发生错误:", error);
+    throw new Error(
+      `令牌生成失败: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 }
 
 /**
