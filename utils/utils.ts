@@ -31,3 +31,18 @@ export {
   copyCardKeyWithToast,
   getCardKeyIdentifier,
 } from "./cardKeyDisplay";
+
+// 邀请链接工具函数（仅客户端安全函数）
+export {
+  getInviteUsageStats,
+  clearInviteUsages,
+  formatInviteDisplay,
+} from "./inviteUtils";
+
+// 注意：所有加密相关函数（generateInviteToken, parseInviteToken, verifyInviteToken,
+// useInviteToken, createQuickInvite, generateInviteUrl）已移除客户端访问，
+// 必须通过服务端 API 调用
+
+// 注意：所有加密工具函数（simpleEncrypt, simpleDecrypt, createSimpleChecksum,
+// addBase64Padding, generateToken, parseToken）已移除客户端访问，
+// 因为它们依赖服务端私钥

@@ -15,27 +15,35 @@ import {
  */
 export async function createUser(
   userData: CreateUserRequest,
-): Promise<boolean> {
+): Promise<{ success: boolean; data?: User; error?: string }> {
   try {
     const supabase = createClient();
-    const { error } = await supabase.from("users").insert({
-      id: userData.id,
-      nickname: userData.nickname,
-      avatar_url: userData.avatar_url,
-      user_type: userData.user_type,
-      level: userData.level,
-    });
+    const { data, error } = await supabase
+      .from("users")
+      .insert({
+        id: userData.id,
+        nickname: userData.nickname,
+        avatar_url: userData.avatar_url,
+        user_type: userData.user_type,
+        level: userData.level,
+        invited_by: userData.invited_by,
+      })
+      .select()
+      .single();
 
     if (error) {
       console.error("创建用户失败:", error);
-      return false;
+      return { success: false, error: error.message };
     }
 
     console.log("成功创建用户:", userData.id);
-    return true;
+    return { success: true, data };
   } catch (error) {
     console.error("创建用户时出错:", error);
-    return false;
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "未知错误",
+    };
   }
 }
 

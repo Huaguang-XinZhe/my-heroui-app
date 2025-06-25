@@ -5,8 +5,8 @@ import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Divider } from "@heroui/divider";
 import { Button } from "@heroui/button";
 import { Link } from "@heroui/link";
-import { GoogleSignInButton } from "@/components/GoogleSignInButton";
-import { UserProfile } from "@/components/UserProfile";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { UserProfile } from "@/components/auth/UserProfile";
 
 export default function GoogleAuthPage() {
   const { data: session, status } = useSession();

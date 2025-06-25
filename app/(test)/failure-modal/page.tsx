@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@heroui/button";
 import { Card, CardBody, CardHeader } from "@heroui/card";
-import { FailureDetailsModal } from "@/components/FailureDetailsModal";
+import { FailureDetailsModal } from "@/components/modals/FailureDetailsModal";
 import { FromOthersResult, ErrorResult } from "@/types/email";
 
 export default function TestFailureModalPage() {

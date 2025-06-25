@@ -5,8 +5,8 @@ import { Button } from "@heroui/button";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { useSession } from "next-auth/react";
-import { EmailInputSection } from "@/components/EmailInputSection";
-import { FailureDetailsModal } from "@/components/FailureDetailsModal";
+import { EmailInputSection } from "@/components/email/EmailInputSection";
+import { FailureDetailsModal } from "@/components/modals/FailureDetailsModal";
 import { ProtocolType } from "@/types/email";
 import { parseEmailInput } from "@/utils/emailParser";
 import {

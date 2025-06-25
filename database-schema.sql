@@ -14,12 +14,14 @@ CREATE TABLE users (
     avatar_url TEXT, -- 头像URL
     user_type VARCHAR(30) NOT NULL CHECK (user_type IN ('oauth2-google', 'oauth2-linuxdo', 'card_key', 'system')), -- 用户类型：oauth2-google、oauth2-linuxdo、card_key 或 system
     level INTEGER DEFAULT NULL, -- Linux DO 信任等级（仅 oauth2-linuxdo 用户有此字段）
+    invited_by VARCHAR(100) DEFAULT NULL, -- 受邀人，记录邀请者的用户ID
     created_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai'), -- 北京时间
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() AT TIME ZONE 'Asia/Shanghai')
 );
 
 -- 用户表索引
 CREATE INDEX idx_users_user_type ON users(user_type);
+CREATE INDEX idx_users_invited_by ON users(invited_by);
 
 -- =============================================
 -- 2. 重构的 mail_accounts 表

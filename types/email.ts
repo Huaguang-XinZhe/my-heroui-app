@@ -32,6 +32,18 @@ export interface TrialAccount {
     originalCardKey?: string; // 原始卡密
   };
   isTrialAccount: true;
+  // 新增：支持多个邮箱账户
+  allEmailAccounts?: Array<{
+    email: string;
+    refreshToken: string;
+    protocolType: ProtocolType;
+    serviceProvider: string;
+    clientId?: string;
+    password?: string;
+    secondaryEmail?: string;
+    secondaryPassword?: string;
+  }>;
+  emailCount?: number; // 邮箱总数
 }
 
 // =============================================
@@ -60,6 +72,7 @@ export interface CreateUserRequest {
   avatar_url?: string;
   user_type: UserType;
   level?: number; // Linux DO 信任等级
+  invited_by?: string; // 受邀人，记录邀请者的用户ID
 }
 
 // =============================================

@@ -1,20 +1,18 @@
 import { Metadata } from "next";
 import { Footer } from "@/components/layout/Footer";
-import { MotionHeader } from "@/components/layout/MotionHeader";
 
 export const metadata: Metadata = {
-  title: "登录 - 邮取星",
-  description: "登录到邮取星账户，享受便捷的邮件管理服务",
+  title: "邀请注册 - 邮取星",
+  description: "使用邀请链接注册邮取星账户",
 };
 
-export default function LoginLayout({
+export default function InviteLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <div className="flex h-screen flex-col overflow-hidden">
-      <MotionHeader />
       <main className="flex flex-1 items-center justify-center">
         {children}
       </main>

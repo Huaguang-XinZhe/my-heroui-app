@@ -33,6 +33,9 @@ import {
   FaShield,
   FaDatabase,
   FaArrowUpRightFromSquare,
+  FaUsers,
+  FaLink,
+  FaX,
 } from "react-icons/fa6";
 import { TbInfoCircle } from "react-icons/tb";
 
@@ -157,4 +160,20 @@ export const IconDatabase = ({ className }: IconProps) => (
 
 export const IconExternalLink = ({ className }: IconProps) => (
   <FaArrowUpRightFromSquare className={className} />
+);
+
+export const IconUsers = ({ className }: IconProps) => (
+  <FaUsers className={className} />
+);
+
+export const IconLink = ({ className }: IconProps) => (
+  <FaLink className={className} />
+);
+
+export const IconX = ({ className }: IconProps) => (
+  <FaX className={className} />
+);
+
+export const IconMail = ({ className }: IconProps) => (
+  <FaEnvelope className={className} />
 );

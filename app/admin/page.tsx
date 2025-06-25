@@ -4,10 +4,10 @@ import { useSession } from "next-auth/react";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
+import { Spinner } from "@heroui/spinner";
 import Link from "next/link";
 import {
   IconShield,
-  IconRefresh,
   IconKey,
   IconDatabase,
   IconCheck,
@@ -21,7 +21,7 @@ export default function AdminDashboardPage() {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
-          <IconRefresh className="mx-auto mb-4 h-8 w-8 animate-spin text-indigo-500" />
+          <Spinner size="lg" color="primary" className="mb-4" />
           <p className="text-gray-400">加载中...</p>
         </div>
       </div>
@@ -50,6 +50,14 @@ export default function AdminDashboardPage() {
       href: "/admin/card-key-generator",
       color: "text-yellow-500",
       bgColor: "bg-yellow-500/10",
+    },
+    {
+      title: "邀请链接生成",
+      description: "生成邀请链接，控制注册权限和邮箱配额",
+      icon: <IconCheck className="h-8 w-8" />,
+      href: "/admin/invite-generator",
+      color: "text-green-500",
+      bgColor: "bg-green-500/10",
     },
     {
       title: "批量添加邮箱",
@@ -96,15 +104,15 @@ export default function AdminDashboardPage() {
         </Card>
 
         {/* 功能区域 */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {adminFeatures.map((feature) => (
             <Card
               key={feature.title}
-              className="transition-shadow hover:shadow-lg"
+              className="min-h-[200px] transition-shadow hover:shadow-lg"
             >
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-3">
-                  <div className={`rounded-xl p-3 ${feature.bgColor}`}>
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-4">
+                  <div className={`rounded-xl p-4 ${feature.bgColor}`}>
                     <div className={feature.color}>{feature.icon}</div>
                   </div>
                   <div>
@@ -113,7 +121,7 @@ export default function AdminDashboardPage() {
                 </div>
               </CardHeader>
               <CardBody className="pt-0">
-                <p className="mb-4 text-gray-400">{feature.description}</p>
+                <p className="mb-6 text-gray-400">{feature.description}</p>
                 <Button
                   as={Link}
                   href={feature.href}

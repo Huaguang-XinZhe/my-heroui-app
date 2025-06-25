@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Divider } from "@heroui/divider";
-import { GoogleSignInButton } from "@/components/GoogleSignInButton";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
 export default function SignInPage() {
   const { data: session, status } = useSession();

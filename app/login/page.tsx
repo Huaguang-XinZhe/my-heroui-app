@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Card, CardBody, CardHeader } from "@heroui/card";
-import { Link } from "@heroui/link";
 import { Form } from "@heroui/form";
 import { FcGoogle } from "react-icons/fc"; // Google 图标
 import { FaInfoCircle } from "react-icons/fa"; // 信息图标
@@ -14,16 +13,15 @@ import { FaKey } from "react-icons/fa"; // 钥匙图标
 
 import { Logo } from "@/components/icons/Logo";
 import { SpinnerIcon } from "@/components/icons/SpinnerIcon";
-import { motion, AnimatePresence } from "framer-motion";
-import { DividerWithText } from "@/components/DividerWithText";
-import { AuthButton } from "@/components/AuthButton";
+import { motion } from "framer-motion";
+import { DividerWithText } from "@/components/ui/DividerWithText";
+import { AuthButton } from "@/components/auth/AuthButton";
 import { signIn } from "next-auth/react";
 import { showSuccessToast, showErrorToast } from "@/utils/toast";
 import { addEmailsToCache } from "@/cache/emailCache";
 import {
   saveOAuthUser,
   getOAuthUser,
-  clearOAuthUser,
   OAuthUserInfo,
 } from "@/utils/oauthUserStorage";
 
@@ -121,14 +119,24 @@ function LoginForm() {
       const result = await response.json();
 
       if (result.success && result.accountData) {
+        const emailCount = result.allCacheEmailInfo?.length || 1;
         const message = result.isFirstTime
-          ? `卡密验证成功！已为您分配专属邮箱账户`
-          : `欢迎回来！卡密验证成功`;
+          ? `卡密验证成功！已为您分配 ${emailCount} 个专属邮箱账户`
+          : `欢迎回来！已加载 ${emailCount} 个邮箱账户`;
 
         showSuccessToast(message);
 
-        // 将邮箱添加到缓存
-        if (result.cacheEmailInfo) {
+        // 将所有邮箱添加到缓存
+        if (result.allCacheEmailInfo && result.allCacheEmailInfo.length > 0) {
+          addEmailsToCache(result.allCacheEmailInfo);
+          console.log(
+            `已添加 ${result.allCacheEmailInfo.length} 个邮箱到缓存:`,
+            result.allCacheEmailInfo.map(
+              (email: any) => `${email.email}(${email.protocolType})`,
+            ),
+          );
+        } else if (result.cacheEmailInfo) {
+          // 向后兼容：如果没有 allCacheEmailInfo，使用旧的 cacheEmailInfo
           addEmailsToCache([result.cacheEmailInfo]);
         }
 
@@ -142,6 +150,9 @@ function LoginForm() {
               originalCardKey: cardKey.trim(), // 保存原始卡密
             },
             isTrialAccount: true,
+            // 新增：存储所有邮箱账户信息
+            allEmailAccounts: result.allEmailAccounts || [result.accountData],
+            emailCount: result.allEmailAccounts?.length || 1,
           }),
         );
 

@@ -1,12 +1,12 @@
 "use client";
 
 import { use } from "react";
-import { EmailSourceView } from "@/components/EmailSourceView";
+import { EmailSourceView } from "@/components/email/EmailSourceView";
 import { Panel, PanelGroup, PanelResizeHandle } from "@/lib/panels";
 import { DragHandleIcon } from "@/components/icons/DragHandleIcon";
-import { EmailContent } from "@/components/EmailContent";
-import { EmailRenderView } from "@/components/EmailRenderView";
-import { EmailHeader } from "@/components/EmailHeader";
+import { EmailContent } from "@/components/email/EmailContentMain";
+import { EmailRenderView } from "@/components/email/EmailRenderView";
+import { EmailHeader } from "@/components/email/EmailHeader";
 
 // 自定义调整大小的手柄组件
 function ResizeHandle() {

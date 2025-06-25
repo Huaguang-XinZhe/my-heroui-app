@@ -14,61 +14,10 @@ export interface UsedCardKey {
   usedBy?: string;
 }
 
-// 私钥，实际使用中应该放在环境变量中
-const PRIVATE_KEY = "MyCardKey2024Secret#Advanced!";
+import { generateToken, parseToken } from "./cryptoUtils";
 
 // 模拟数据库存储已使用的卡密（实际项目中应该用真实数据库）
 let usedKeys: Set<string> = new Set();
-
-/**
- * 简单的字符串加密（客户端兼容，性能优化版）
- */
-function simpleEncrypt(text: string, key: string): string {
-  const textLen = text.length;
-  const keyLen = key.length;
-  const result: string[] = new Array(textLen); // 预分配数组，避免字符串拼接
-
-  for (let i = 0; i < textLen; i++) {
-    const charCode = text.charCodeAt(i) ^ key.charCodeAt(i % keyLen);
-    result[i] = String.fromCharCode(charCode);
-  }
-
-  return btoa(result.join("")); // base64编码
-}
-
-/**
- * 简单的字符串解密（客户端兼容，性能优化版）
- */
-function simpleDecrypt(encrypted: string, key: string): string {
-  try {
-    const decoded = atob(encrypted); // base64解码
-    const decodedLen = decoded.length;
-    const keyLen = key.length;
-    const result: string[] = new Array(decodedLen); // 预分配数组
-
-    for (let i = 0; i < decodedLen; i++) {
-      const charCode = decoded.charCodeAt(i) ^ key.charCodeAt(i % keyLen);
-      result[i] = String.fromCharCode(charCode);
-    }
-
-    return result.join("");
-  } catch {
-    throw new Error("解密失败");
-  }
-}
-
-/**
- * 创建简单的校验和
- */
-function createSimpleChecksum(data: string): string {
-  let hash = 0;
-  for (let i = 0; i < data.length; i++) {
-    const char = data.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // 转换为32位整数
-  }
-  return Math.abs(hash).toString(16).padStart(8, "0").substring(0, 4);
-}
 
 /**
  * 获取来源简化标识
@@ -121,19 +70,7 @@ export function generateCardKey(data: CardKeyData): string {
     r: data.reusable ? 1 : 0, // 是否可重复使用
   };
 
-  // 序列化为紧凑的字符串
-  const jsonData = JSON.stringify(compactData);
-
-  // 使用简单加密
-  const encrypted = simpleEncrypt(jsonData, PRIVATE_KEY);
-
-  // 创建校验和
-  const checksum = createSimpleChecksum(encrypted);
-
-  // 生成最终卡密：sk- + 校验和 + 加密数据
-  const cardKey = "sk-" + checksum + encrypted.replace(/[+/=]/g, ""); // 移除 base64 特殊字符
-
-  return cardKey;
+  return generateToken(compactData, "sk-");
 }
 
 /**
@@ -196,93 +133,45 @@ function parseCardKeyData(cardKey: string): {
   data?: CardKeyData;
   error?: string;
 } {
-  try {
-    // 移除前缀
-    const withoutPrefix = cardKey.substring(3);
+  const parseResult = parseToken<any>(cardKey, "sk-");
 
-    // 提取校验和和数据
-    const checksum = withoutPrefix.substring(0, 4);
-    const encryptedData = withoutPrefix.substring(4);
+  if (!parseResult.isValid) {
+    return parseResult;
+  }
 
-    // 重新添加 base64 填充
-    const paddedData = addBase64Padding(encryptedData);
+  const compactData = parseResult.data!;
 
-    // 验证校验和
-    const expectedChecksum = createSimpleChecksum(paddedData);
-    if (checksum !== expectedChecksum) {
-      return {
-        isValid: false,
-        error: "卡密校验失败",
-      };
-    }
-
-    // 解密数据
-    let jsonData: string;
-    try {
-      jsonData = simpleDecrypt(paddedData, PRIVATE_KEY);
-    } catch {
-      return {
-        isValid: false,
-        error: "卡密解密失败",
-      };
-    }
-
-    // 解析 JSON 数据
-    let compactData: any;
-    try {
-      compactData = JSON.parse(jsonData);
-    } catch {
-      return {
-        isValid: false,
-        error: "卡密数据格式错误",
-      };
-    }
-
-    // 验证数据结构
-    if (
-      !compactData.s ||
-      compactData.e === undefined ||
-      !compactData.d ||
-      !compactData.t ||
-      !compactData.i ||
-      compactData.r === undefined
-    ) {
-      return {
-        isValid: false,
-        error: "卡密数据不完整",
-      };
-    }
-
-    // 还原完整数据
-    const sourceInfo = restoreSource(compactData.s);
-    const data: CardKeyData = {
-      source: sourceInfo.source,
-      customSource: sourceInfo.customSource,
-      emailCount: compactData.e,
-      duration: compactData.d === "S" ? "短效" : "长效",
-      timestamp: compactData.t * 1000, // 转回毫秒
-      id: compactData.i,
-      reusable: compactData.r === 1,
-    };
-
-    return {
-      isValid: true,
-      data,
-    };
-  } catch (error) {
+  // 验证数据结构
+  if (
+    !compactData.s ||
+    compactData.e === undefined ||
+    !compactData.d ||
+    !compactData.t ||
+    !compactData.i ||
+    compactData.r === undefined
+  ) {
     return {
       isValid: false,
-      error: error instanceof Error ? error.message : "解析卡密数据失败",
+      error: "卡密数据不完整",
     };
   }
-}
 
-/**
- * 添加 base64 填充
- */
-function addBase64Padding(str: string): string {
-  const padLength = (4 - (str.length % 4)) % 4;
-  return str + "=".repeat(padLength);
+  // 还原完整数据
+  const sourceInfo = restoreSource(compactData.s);
+  const data: CardKeyData = {
+    source: sourceInfo.source,
+    customSource: sourceInfo.customSource,
+    emailCount: compactData.e,
+    duration: compactData.d === "S" ? "短效" : "长效",
+    timestamp: compactData.t * 1000, // 转回毫秒
+    id: compactData.i,
+    reusable: compactData.r === 1,
+  };
+
+  return {
+    isValid: true,
+    data,
+  };
 }
 
 /**

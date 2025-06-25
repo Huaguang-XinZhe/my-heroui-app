@@ -4,14 +4,20 @@ import { Button } from "@heroui/button";
 interface AuthButtonProps {
   icon: ReactNode;
   text: string;
+  className?: string;
   onPress?: () => void;
 }
 
-export function AuthButton({ icon, text, onPress }: AuthButtonProps) {
+export function AuthButton({
+  icon,
+  text,
+  className,
+  onPress,
+}: AuthButtonProps) {
   return (
     <Button
       variant="bordered"
-      className="flex items-center justify-center border-gray-800 py-3 font-medium text-gray-300 transition-transform duration-300 hover:-translate-y-0.5 hover:border-indigo-700 hover:text-indigo-400 hover:shadow-md hover:shadow-indigo-500/10"
+      className={`flex items-center justify-center border-gray-800 py-3 font-medium text-gray-300 transition-transform duration-300 hover:-translate-y-0.5 hover:border-indigo-700 hover:text-indigo-400 hover:shadow-md hover:shadow-indigo-500/10 ${className}`}
       radius="lg"
       onPress={onPress}
     >

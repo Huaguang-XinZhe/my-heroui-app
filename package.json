@@ -33,7 +33,7 @@
     "@heroui/select": "^2.4.21",
     "@heroui/snippet": "^2.2.18",
     "@heroui/spinner": "^2.2.18",
-    "@heroui/switch": "2.2.15",
+    "@heroui/switch": "^2.2.20",
     "@heroui/system": "2.4.13",
     "@heroui/theme": "2.4.13",
     "@heroui/toast": "^2.0.7",

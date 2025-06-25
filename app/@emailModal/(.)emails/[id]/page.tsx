@@ -10,9 +10,9 @@ import {
 import { Button } from "@heroui/button";
 import { useRouter } from "next/navigation";
 import { use } from "react";
-import { EmailContent } from "@/components/EmailContent";
-import { EmailHeader } from "@/components/EmailHeader";
-import { EmailRenderView } from "@/components/EmailRenderView";
+import { EmailContent } from "@/components/email/EmailContentMain";
+import { EmailHeader } from "@/components/email/EmailHeader";
+import { EmailRenderView } from "@/components/email/EmailRenderView";
 
 export default function EmailModal({
   params,

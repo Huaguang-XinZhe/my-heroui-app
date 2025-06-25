@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyCardKey } from "@/utils/cardKeyUtils";
 import { createClient, createUser, getUserById } from "@/lib/supabase/client";
 import { CachedEmailInfo } from "@/types/email";
+import { verifyInviteToken } from "@/utils/inviteUtils";
+import { getAvailableMailAccounts } from "@/lib/supabase/mailAccounts";
 
 interface CardKeyLoginRequest {
   cardKey: string;
   userId?: string;
+  inviteToken?: string; // 可选的邀请令牌
 }
 
 interface UserSession {
@@ -22,13 +25,13 @@ interface UserSession {
  * 重构后的业务逻辑：
  * 1. 验证卡密有效性
  * 2. 检查/创建用户账户
- * 3. 分配可用邮箱账户
+ * 3. 分配/获取用户的邮箱账户
  * 4. 返回登录会话信息
  */
 export async function POST(request: NextRequest): Promise<Response> {
   try {
     const body: CardKeyLoginRequest = await request.json();
-    const { cardKey, userId } = body;
+    const { cardKey, userId, inviteToken } = body;
 
     if (!cardKey || !cardKey.trim()) {
       return NextResponse.json(
@@ -82,22 +85,24 @@ export async function POST(request: NextRequest): Promise<Response> {
       );
     }
 
-    // 3. 查找用户已分配的邮箱账户
+    // 3. 查找用户已分配的所有邮箱账户
     const { data: userMailAccounts, error: userAccountsError } = await supabase
       .from("mail_accounts")
       .select(
         "email, refresh_token, protocol_type, service_provider, client_id, password, secondary_email, secondary_password",
       )
       .eq("user_id", finalUserId)
-      .eq("is_banned", false)
-      .limit(1);
+      .eq("is_banned", false);
 
-    let accountData: any;
+    let allEmailAccounts: any[] = [];
     let isFirstTime = false;
 
     if (userMailAccounts && userMailAccounts.length > 0) {
-      // 用户已有分配的邮箱
-      accountData = userMailAccounts[0];
+      // 用户已有分配的邮箱，返回所有邮箱
+      allEmailAccounts = userMailAccounts;
+      console.log(
+        `非首次登录: 用户 ${finalUserId} 已有 ${allEmailAccounts.length} 个邮箱账户`,
+      );
     } else {
       // 第一次使用，分配新邮箱
       isFirstTime = true;
@@ -152,29 +157,37 @@ export async function POST(request: NextRequest): Promise<Response> {
         );
       }
 
-      accountData = { ...availableAccount, user_id: finalUserId };
+      allEmailAccounts = [{ ...availableAccount, user_id: finalUserId }];
+      console.log(
+        `首次登录: 为用户 ${finalUserId} 分配了邮箱 ${availableAccount.email}`,
+      );
     }
+
+    // 使用第一个邮箱作为主邮箱（向后兼容）
+    const primaryAccount = allEmailAccounts[0];
 
     // 4. 创建用户会话数据
     const userSession: UserSession = {
       userId: finalUserId,
-      email: accountData.email,
+      email: primaryAccount.email,
       isTrialAccount: true,
       cardData,
     };
 
-    // 5. 创建缓存邮箱信息
-    const cacheEmailInfo: CachedEmailInfo = {
-      email: accountData.email,
-      refreshToken: accountData.refresh_token,
-      protocolType: accountData.protocol_type,
-      user_id: finalUserId,
-      password: accountData.password,
-      serviceProvider: accountData.service_provider,
-    };
+    // 5. 创建所有邮箱的缓存信息
+    const allCacheEmailInfo: CachedEmailInfo[] = allEmailAccounts.map(
+      (account) => ({
+        email: account.email,
+        refreshToken: account.refresh_token,
+        protocolType: account.protocol_type,
+        user_id: finalUserId,
+        password: account.password,
+        serviceProvider: account.service_provider,
+      }),
+    );
 
     console.log(
-      `卡密登录成功: ${accountData.email} (${accountData.protocol_type}) - 用户: ${finalUserId} - 卡密: ${trimmedCardKey}${isFirstTime ? " [首次分配]" : " [已有邮箱]"}`,
+      `卡密登录成功: ${allEmailAccounts.length} 个邮箱账户 [${allEmailAccounts.map((acc) => `${acc.email}(${acc.protocol_type})`).join(", ")}] - 用户: ${finalUserId} - 卡密: ${trimmedCardKey}${isFirstTime ? " [首次分配]" : " [已有邮箱]"}`,
     );
 
     return NextResponse.json(
@@ -182,17 +195,32 @@ export async function POST(request: NextRequest): Promise<Response> {
         success: true,
         isFirstTime,
         userSession,
+        // 主邮箱信息（向后兼容）
         accountData: {
-          email: accountData.email,
-          refreshToken: accountData.refresh_token,
-          protocolType: accountData.protocol_type,
-          serviceProvider: accountData.service_provider,
-          clientId: accountData.client_id,
-          password: accountData.password,
-          secondaryEmail: accountData.secondary_email,
-          secondaryPassword: accountData.secondary_password,
+          email: primaryAccount.email,
+          refreshToken: primaryAccount.refresh_token,
+          protocolType: primaryAccount.protocol_type,
+          serviceProvider: primaryAccount.service_provider,
+          clientId: primaryAccount.client_id,
+          password: primaryAccount.password,
+          secondaryEmail: primaryAccount.secondary_email,
+          secondaryPassword: primaryAccount.secondary_password,
         },
-        cacheEmailInfo,
+        // 主邮箱缓存信息（向后兼容）
+        cacheEmailInfo: allCacheEmailInfo[0],
+        // 新增：所有邮箱账户信息
+        allEmailAccounts: allEmailAccounts.map((account) => ({
+          email: account.email,
+          refreshToken: account.refresh_token,
+          protocolType: account.protocol_type,
+          serviceProvider: account.service_provider,
+          clientId: account.client_id,
+          password: account.password,
+          secondaryEmail: account.secondary_email,
+          secondaryPassword: account.secondary_password,
+        })),
+        // 新增：所有邮箱的缓存信息
+        allCacheEmailInfo,
       },
       { status: 200 },
     );
