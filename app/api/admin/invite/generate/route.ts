@@ -14,6 +14,13 @@ export async function POST(request: NextRequest) {
     //   );
     // }
 
+    // 添加调试信息
+    console.log("环境检查:", {
+      hasCryptoKey: !!process.env.CRYPTO_PRIVATE_KEY,
+      keyLength: process.env.CRYPTO_PRIVATE_KEY?.length || 0,
+      nodeEnv: process.env.NODE_ENV,
+    });
+
     const body = await request.json();
     const {
       imapEmailCount,
@@ -82,7 +89,17 @@ export async function POST(request: NextRequest) {
     }
 
     // 服务器端生成令牌
-    const token = generateInviteToken(inviteData);
+    let token: string;
+    try {
+      token = generateInviteToken(inviteData);
+      console.log("令牌生成成功，长度:", token.length);
+    } catch (tokenError) {
+      console.error("令牌生成失败:", tokenError);
+      return NextResponse.json(
+        { success: false, error: "令牌生成失败" },
+        { status: 500 },
+      );
+    }
 
     // 获取完整的基础 URL
     const protocol = request.headers.get("x-forwarded-proto") || "https";

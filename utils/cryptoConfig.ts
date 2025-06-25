@@ -1,8 +1,8 @@
 // 统一的加密配置
 // 私钥仅在服务器端使用，客户端不再直接处理加密
 
-// 默认私钥 - 仅在服务器端使用
-const DEFAULT_PRIVATE_KEY = "xxx";
+// 默认私钥 - 仅在服务器端使用（开发环境）
+const DEFAULT_PRIVATE_KEY = "R9>0E=i!.,Qg";
 
 // 获取私钥的函数 - 仅在服务器端调用
 export function getCryptoPrivateKey(): string {
@@ -14,7 +14,18 @@ export function getCryptoPrivateKey(): string {
 
   // 优先使用环境变量
   if (process.env?.CRYPTO_PRIVATE_KEY) {
-    return process.env.CRYPTO_PRIVATE_KEY;
+    const key = process.env.CRYPTO_PRIVATE_KEY;
+    if (key.length < 16) {
+      console.warn("CRYPTO_PRIVATE_KEY 长度过短，建议使用至少 16 个字符的密钥");
+    }
+    return key;
+  }
+
+  // 在生产环境中，如果没有设置环境变量，输出警告
+  if (process.env.NODE_ENV === "production") {
+    console.warn(
+      "生产环境未设置 CRYPTO_PRIVATE_KEY 环境变量，使用默认密钥（不安全）",
+    );
   }
 
   // 使用默认私钥
