@@ -6,6 +6,7 @@ import { Tooltip } from "@heroui/tooltip";
 import { IconEnvelope, IconRefresh, IconTrash } from "@/components/icons/icons";
 import { EmailSubscriptionButton } from "./EmailSubscriptionButton";
 import { SubscriptionStatus } from "@/types/subscription";
+import { siteConfig } from "@/config/site";
 
 interface EmailDisplayHeaderProps {
   isLoading: boolean;
@@ -43,9 +44,13 @@ export const EmailDisplayHeader = forwardRef<
     // 暴露冷却触发函数给父组件
     useImperativeHandle(ref, () => ({
       triggerCooldown: (type: "inbox" | "junk") => {
+        const cooldownTime =
+          type === "inbox"
+            ? siteConfig.cooldowns.inbox
+            : siteConfig.cooldowns.junk;
         setCooldowns((prev) => ({
           ...prev,
-          [type]: Date.now() + 30000, // 30 秒后解冻
+          [type]: Date.now() + cooldownTime * 1000, // 转换为毫秒
         }));
       },
     }));
@@ -80,10 +85,14 @@ export const EmailDisplayHeader = forwardRef<
         return;
       }
 
-      // 设置 30 秒冷却期
+      // 设置冷却期
+      const cooldownTime =
+        type === "inbox"
+          ? siteConfig.cooldowns.inbox
+          : siteConfig.cooldowns.junk;
       setCooldowns((prev) => ({
         ...prev,
-        [type]: Date.now() + 30000, // 30 秒后解冻
+        [type]: Date.now() + cooldownTime * 1000, // 转换为毫秒
       }));
 
       // 调用原始的获取邮件函数
@@ -123,42 +132,46 @@ export const EmailDisplayHeader = forwardRef<
             <Tooltip
               content={
                 isInCooldown("inbox")
-                  ? `请等待 ${getCooldownTime("inbox")} 秒后再试`
+                  ? `获取收件箱邮件冷却 ${siteConfig.cooldowns.inbox}s，请稍后再试`
                   : "获取最新一封收件箱邮件"
               }
               showArrow
             >
-              <Button
-                isIconOnly
-                variant="flat"
-                size="sm"
-                isLoading={isLoading && lastFetchType === "inbox"}
-                isDisabled={isInCooldown("inbox")}
-                onPress={() => handleFetchEmails("inbox")}
-                className="text-gray-400 hover:text-gray-200"
-              >
-                <IconRefresh className="text-sm" />
-              </Button>
+              <div className="inline-block">
+                <Button
+                  isIconOnly
+                  variant="flat"
+                  size="sm"
+                  isLoading={isLoading && lastFetchType === "inbox"}
+                  isDisabled={isInCooldown("inbox")}
+                  onPress={() => handleFetchEmails("inbox")}
+                  className="text-gray-400 hover:text-gray-200"
+                >
+                  <IconRefresh className="text-sm" />
+                </Button>
+              </div>
             </Tooltip>
             <Tooltip
               content={
                 isInCooldown("junk")
-                  ? `请等待 ${getCooldownTime("junk")} 秒后再试`
+                  ? `获取垃圾邮件冷却 ${siteConfig.cooldowns.junk}s，请稍后再试`
                   : "获取最新一封垃圾邮件"
               }
               showArrow
             >
-              <Button
-                isIconOnly
-                variant="flat"
-                size="sm"
-                isLoading={isLoading && lastFetchType === "junk"}
-                isDisabled={isInCooldown("junk")}
-                onPress={() => handleFetchEmails("junk")}
-                className="text-gray-400 hover:text-gray-200"
-              >
-                <IconTrash className="text-sm" />
-              </Button>
+              <div className="inline-block">
+                <Button
+                  isIconOnly
+                  variant="flat"
+                  size="sm"
+                  isLoading={isLoading && lastFetchType === "junk"}
+                  isDisabled={isInCooldown("junk")}
+                  onPress={() => handleFetchEmails("junk")}
+                  className="text-gray-400 hover:text-gray-200"
+                >
+                  <IconTrash className="text-sm" />
+                </Button>
+              </div>
             </Tooltip>
           </div>
         )}

@@ -9,6 +9,7 @@ import { ScrollShadow } from "@heroui/scroll-shadow";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { getCachedEmails } from "@/cache/emailCache";
 import { CachedEmailInfo } from "@/types/email";
+import { siteConfig } from "@/config/site";
 
 interface EmailSidebarProps {
   onEmailSelect?: (email: string) => void;
@@ -26,12 +27,26 @@ export function EmailSidebar({
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [emailAccounts, setEmailAccounts] = useState<CachedEmailInfo[]>([]);
+  const [switchCooldownEnd, setSwitchCooldownEnd] = useState<number>(0);
 
   // 组件挂载时加载邮箱数据
   useEffect(() => {
     const cachedEmails = getCachedEmails();
     setEmailAccounts(cachedEmails);
   }, []);
+
+  // 管理邮箱切换冷却时间
+  useEffect(() => {
+    if (switchCooldownEnd > Date.now()) {
+      const interval = setInterval(() => {
+        if (Date.now() >= switchCooldownEnd) {
+          setSwitchCooldownEnd(0);
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [switchCooldownEnd]);
 
   // 刷新邮箱列表的函数
   const refreshEmailList = useCallback(() => {
@@ -46,9 +61,36 @@ export function EmailSidebar({
     }
   }, [refreshEmailList, onRefreshList]);
 
+  // 获取邮箱切换冷却剩余时间
+  const getSwitchCooldownTime = (): number => {
+    if (!switchCooldownEnd) return 0;
+    return Math.max(0, Math.ceil((switchCooldownEnd - Date.now()) / 1000));
+  };
+
+  // 检查是否在邮箱切换冷却期
+  const isInSwitchCooldown = (): boolean => {
+    return getSwitchCooldownTime() > 0;
+  };
+
   const handleSwitchAccount = (email: string) => {
+    // 如果是同一个邮箱，不需要处理
+    if (email === selectedEmail) {
+      return;
+    }
+
+    // 检查邮箱切换冷却，但不显示警告（已通过 tooltip 显示）
+    if (isInSwitchCooldown()) {
+      return;
+    }
+
     if (onEmailSelect) {
       onEmailSelect(email);
+
+      // 设置邮箱切换冷却
+      setSwitchCooldownEnd(
+        Date.now() + siteConfig.cooldowns.emailSwitch * 1000,
+      );
+
       // 点击邮箱时立即触发收件箱冷却
       if (onTriggerCooldown) {
         onTriggerCooldown("inbox");
@@ -97,6 +139,10 @@ export function EmailSidebar({
           ) : (
             filteredAccounts.map((account) => {
               const isSelected = account.email === selectedEmail;
+              const isDisabled = !isSelected && isInSwitchCooldown();
+              const tooltipContent = isDisabled
+                ? `邮箱切换冷却 ${siteConfig.cooldowns.emailSwitch}s，请稍后再试`
+                : undefined;
 
               return (
                 <EmailItem
@@ -105,6 +151,8 @@ export function EmailSidebar({
                   isSelected={isSelected}
                   onSelect={handleSwitchAccount}
                   displayEmail={account.email}
+                  disabled={isDisabled}
+                  tooltipContent={tooltipContent}
                 />
               );
             })

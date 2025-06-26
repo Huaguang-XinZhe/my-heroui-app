@@ -66,23 +66,26 @@ export function useEmailDisplay({
   // 当选中的邮箱改变时的副作用
   useEffect(() => {
     if (selectedEmail) {
-      // 如果有缓存的邮件内容，先显示缓存内容
+      // 每次切换邮箱时，先重置状态（除了正在加载的状态）
+      emailState.setEmail(null);
+      emailState.setError(null);
+      emailState.setLastFetchType(null);
+      emailState.setHasFetched(false);
+
+      // 如果有缓存的邮件内容，显示缓存内容并标记为已获取
       if (cachedEmailContent) {
         emailState.setEmail(cachedEmailContent);
         emailState.setHasFetched(true);
       } else {
-        // 只有在没有进行过任何获取操作时才自动获取收件箱邮件
-        // 如果用户已经获取过邮件（无论成功失败），就不再自动获取
-        if (!emailState.hasFetched) {
-          const fetchLatestEmail = async () => {
-            try {
-              await fetchEmails("inbox");
-            } catch (error) {
-              // fetchEmails 内部已经处理了错误
-            }
-          };
-          fetchLatestEmail();
-        }
+        // 没有缓存内容时，自动获取收件箱邮件
+        const fetchLatestEmail = async () => {
+          try {
+            await fetchEmails("inbox");
+          } catch (error) {
+            // fetchEmails 内部已经处理了错误
+          }
+        };
+        fetchLatestEmail();
       }
     } else {
       // 清理状态

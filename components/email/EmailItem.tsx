@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { Card, CardBody } from "@heroui/card";
+import { Tooltip } from "@heroui/tooltip";
 import { ProtocolBadge } from "@/components/ui/ProtocolBadge";
 import { CachedEmailInfo } from "@/types/email";
 import { getTimeDisplay } from "@/utils/utils";
@@ -11,6 +12,8 @@ interface EmailItemProps {
   isSelected: boolean;
   onSelect: (email: string) => void;
   displayEmail: string;
+  disabled?: boolean;
+  tooltipContent?: string;
 }
 
 // 解析邮箱地址，返回用户名和域名
@@ -34,7 +37,13 @@ function isEmailTruncated(email: string): boolean {
   return parsed.username.length > 10;
 }
 
-export function EmailItem({ account, isSelected, onSelect }: EmailItemProps) {
+export function EmailItem({
+  account,
+  isSelected,
+  onSelect,
+  disabled = false,
+  tooltipContent,
+}: EmailItemProps) {
   const selectedEmailRef = useRef<HTMLDivElement>(null);
 
   // 滚动到选中的邮箱
@@ -50,15 +59,17 @@ export function EmailItem({ account, isSelected, onSelect }: EmailItemProps) {
   const timeDisplay = getTimeDisplay(account.lastFetchTime);
   const hasTime = timeDisplay !== null;
 
-  return (
+  const cardContent = (
     <Card
       ref={isSelected ? selectedEmailRef : null}
-      isPressable
-      isDisabled={isSelected}
-      onPress={() => onSelect(account.email)}
+      isPressable={!disabled}
+      isDisabled={isSelected || disabled}
+      onPress={disabled ? undefined : () => onSelect(account.email)}
       shadow="none"
       radius="lg"
-      className={`bg-transparent hover:bg-indigo-300/10 ${
+      className={`bg-transparent ${
+        disabled ? "cursor-not-allowed opacity-50" : "hover:bg-indigo-300/10"
+      } ${
         isSelected ? "outline outline-2 outline-blue-500 ring-1" : ""
       } ${hasTime ? "w-full" : "w-full max-w-full"}`}
     >
@@ -70,7 +81,11 @@ export function EmailItem({ account, isSelected, onSelect }: EmailItemProps) {
             <ProtocolBadge protocolType={account.protocolType} />
 
             {/* 邮箱地址 - 始终允许截断以防止溢出 */}
-            <h3 className="min-w-0 flex-1 truncate text-sm font-medium text-gray-200">
+            <h3
+              className={`min-w-0 flex-1 truncate text-sm font-medium ${
+                disabled ? "text-gray-500" : "text-gray-200"
+              }`}
+            >
               {account.email}
             </h3>
           </div>
@@ -78,7 +93,11 @@ export function EmailItem({ account, isSelected, onSelect }: EmailItemProps) {
           {/* 获取时间（仅在不需要显示在下方时显示） */}
           {timeDisplay && !timeDisplay.showBelow && (
             <div className="ml-2 shrink-0">
-              <span className="text-xs text-gray-500">
+              <span
+                className={`text-xs ${
+                  disabled ? "text-gray-600" : "text-gray-500"
+                }`}
+              >
                 {timeDisplay.display}
               </span>
             </div>
@@ -88,10 +107,27 @@ export function EmailItem({ account, isSelected, onSelect }: EmailItemProps) {
         {/* 第二行：长日期或其他需要在下方显示的时间 */}
         {timeDisplay?.showBelow && (
           <div className="mt-1 flex justify-start pl-6">
-            <span className="text-xs text-gray-500">{timeDisplay.display}</span>
+            <span
+              className={`text-xs ${
+                disabled ? "text-gray-600" : "text-gray-500"
+              }`}
+            >
+              {timeDisplay.display}
+            </span>
           </div>
         )}
       </CardBody>
     </Card>
   );
+
+  // 如果有 tooltip 内容且被禁用，则包装在 Tooltip 中
+  if (disabled && tooltipContent) {
+    return (
+      <Tooltip content={tooltipContent} showArrow>
+        <div className="w-full">{cardContent}</div>
+      </Tooltip>
+    );
+  }
+
+  return cardContent;
 }
