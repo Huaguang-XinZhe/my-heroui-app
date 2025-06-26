@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAvailableMailAccounts } from "@/lib/supabase/client";
 import { createClient } from "@/lib/supabase/client";
+import { getUserMailAccounts } from "@/lib/supabase/mailAccounts";
 
 /**
  * 邮件账户管理
@@ -132,6 +133,51 @@ export async function PATCH(request: NextRequest) {
         success: false,
         error: error instanceof Error ? error.message : "服务器内部错误",
       },
+      { status: 500 },
+    );
+  }
+}
+
+/**
+ * 获取指定用户的邮箱账户
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const { userId } = await request.json();
+
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "用户ID不能为空" },
+        { status: 400 },
+      );
+    }
+
+    console.log(`[API] Getting email accounts for user: ${userId}`);
+
+    // 从数据库获取用户的邮箱账户
+    const accounts = await getUserMailAccounts(userId);
+
+    if (!accounts || accounts.length === 0) {
+      return NextResponse.json({
+        success: true,
+        accounts: [],
+        message: "用户暂无邮箱账户",
+      });
+    }
+
+    console.log(
+      `[API] Found ${accounts.length} email accounts for user: ${userId}`,
+    );
+
+    return NextResponse.json({
+      success: true,
+      accounts,
+      message: `找到 ${accounts.length} 个邮箱账户`,
+    });
+  } catch (error) {
+    console.error("[API] Error getting user email accounts:", error);
+    return NextResponse.json(
+      { success: false, error: "服务器内部错误" },
       { status: 500 },
     );
   }

@@ -8,3 +8,4 @@ alwaysApply: true
 - HeroUI 中按钮组件的 onClick 方法已被废弃，用 onPress 替代
 - 无需说明文档，直接在对话末尾总结输出即可
 - 这是 Next.js 应用，每个页面尽可能分为 layout.tsx 和 page.tsx 等
+- 页面组件专注于 UI，逻辑放到 hooks 中

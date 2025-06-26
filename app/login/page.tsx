@@ -49,11 +49,11 @@ function LoginForm() {
   // 检查登录状态
   useEffect(() => {
     console.log("[Login] Session status:", status);
-    if (session) {
+    if (session && status === "authenticated") {
       console.log("[Login] User already logged in, redirecting to home");
       router.push("/");
     }
-  }, [session, router]);
+  }, [session, router, status]);
 
   // 保存 OAuth 用户信息到本地存储
   useEffect(() => {
