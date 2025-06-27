@@ -9,11 +9,8 @@ import {
   SuccessResult,
 } from "@/types/email";
 import { goMailApiService } from "@/lib/goMailApi";
-import {
-  batchAddMailAccounts,
-  getUserById,
-  createUser,
-} from "@/lib/supabase/client";
+import { getUserById, createUser, createClient } from "@/lib/supabase/client";
+import { directBatchInsertMailAccounts } from "@/lib/supabase/mailAccounts";
 import { emailCacheManager } from "@/lib/emailCacheManager";
 import {
   fillDefaultValues,
@@ -107,27 +104,51 @@ export async function POST(request: NextRequest) {
     // 2. 预处理：填充默认值
     const processedMailInfos = fillDefaultValues(body.mailInfos);
 
-    // 3. 并发处理：协议检测和 token 刷新
-    const processingResults = await performConcurrentProcessing(
+    // 3. 先检查邮箱是否已存在，过滤出真正需要处理的邮箱
+    const { newMailInfos, existingResults } = await checkExistingEmails(
       processedMailInfos,
-      body.refreshNeeded,
+      userId,
     );
 
-    // 3.1. 将协议检测和 token 刷新的结果更新到 mailInfos 中
-    const updatedMailInfos = updateMailInfosWithProcessingResults(
-      processedMailInfos,
-      processingResults,
+    console.log(
+      `邮箱存在性检查完成 - 新邮箱: ${newMailInfos.length} 个，已存在: ${existingResults.fromOthers.length + existingResults.errors.length} 个`,
     );
 
-    // 调试日志：显示协议类型更新情况
-    for (const mailInfo of updatedMailInfos) {
-      console.log(
-        `最终邮箱协议类型 ${mailInfo.email}: ${mailInfo.protocolType}`,
+    let finalUpdatedMailInfos = newMailInfos;
+
+    // 4. 只对新邮箱进行协议检测和 token 刷新
+    if (newMailInfos.length > 0) {
+      const processingResults = await performConcurrentProcessing(
+        newMailInfos,
+        body.refreshNeeded,
       );
+
+      // 4.1. 将协议检测和 token 刷新的结果更新到 mailInfos 中
+      finalUpdatedMailInfos = updateMailInfosWithProcessingResults(
+        newMailInfos,
+        processingResults,
+      );
+
+      // 调试日志：显示协议类型更新情况
+      for (const mailInfo of finalUpdatedMailInfos) {
+        console.log(
+          `最终邮箱协议类型 ${mailInfo.email}: ${mailInfo.protocolType}`,
+        );
+      }
     }
 
-    // 4. 使用新的数据库函数批量添加
-    const dbResult = await batchAddMailAccounts(updatedMailInfos, userId);
+    // 5. 使用新的数据库函数批量添加（只添加新邮箱）
+    const insertResult =
+      newMailInfos.length > 0
+        ? await directBatchInsertMailAccounts(finalUpdatedMailInfos, userId)
+        : { errors: [], successes: [] };
+
+    // 6. 构造最终结果，合并已存在邮箱的结果
+    const dbResult = {
+      fromOthers: existingResults.fromOthers,
+      errors: [...existingResults.errors, ...insertResult.errors],
+      successes: insertResult.successes,
+    };
 
     const elapsed = Date.now() - startTime;
     console.log(
@@ -151,6 +172,97 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 },
     );
+  }
+}
+
+/**
+ * 检查邮箱是否已存在，返回需要处理的新邮箱和已存在邮箱的结果
+ */
+async function checkExistingEmails(
+  mailInfos: MailInfo[],
+  userId: string,
+): Promise<{
+  newMailInfos: MailInfo[];
+  existingResults: {
+    fromOthers: FromOthersResult[];
+    errors: ErrorResult[];
+  };
+}> {
+  const newMailInfos: MailInfo[] = [];
+  const fromOthers: FromOthersResult[] = [];
+  const errors: ErrorResult[] = [];
+
+  if (mailInfos.length === 0) {
+    return {
+      newMailInfos,
+      existingResults: { fromOthers, errors },
+    };
+  }
+
+  try {
+    const supabase = createClient();
+
+    // 批量检查已存在的邮箱
+    const emails = mailInfos.map((info) => info.email);
+    const { data: existingAccounts } = await supabase
+      .from("mail_accounts")
+      .select("email, is_banned, user_id")
+      .in("email", emails);
+
+    const existingEmailsMap = new Map(
+      (existingAccounts || []).map((account) => [account.email, account]),
+    );
+
+    // 分类邮箱：已存在的和新的
+    for (const mailInfo of mailInfos) {
+      const existing = existingEmailsMap.get(mailInfo.email);
+
+      if (existing) {
+        if (existing.is_banned) {
+          errors.push({
+            email: mailInfo.email,
+            isBanned: true,
+            error: "邮箱已被封禁",
+          });
+        } else if (existing.user_id !== userId) {
+          fromOthers.push({
+            email: mailInfo.email,
+            isBanned: false,
+          });
+        } else {
+          // 邮箱已属于当前用户，也归类为 fromOthers
+          fromOthers.push({
+            email: mailInfo.email,
+            isBanned: false,
+          });
+        }
+      } else {
+        newMailInfos.push(mailInfo);
+      }
+    }
+
+    console.log(
+      `邮箱存在性检查完成 - 总数: ${mailInfos.length}，新邮箱: ${newMailInfos.length}，已存在: ${fromOthers.length}，封禁: ${errors.length}`,
+    );
+
+    return {
+      newMailInfos,
+      existingResults: { fromOthers, errors },
+    };
+  } catch (error) {
+    console.error("检查邮箱存在性失败:", error);
+    // 如果检查失败，将所有邮箱都归类为错误
+    return {
+      newMailInfos: [],
+      existingResults: {
+        fromOthers: [],
+        errors: mailInfos.map((mailInfo) => ({
+          email: mailInfo.email,
+          isBanned: false,
+          error: "检查邮箱存在性失败",
+        })),
+      },
+    };
   }
 }
 

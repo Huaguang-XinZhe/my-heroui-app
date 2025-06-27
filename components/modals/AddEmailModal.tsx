@@ -133,7 +133,7 @@ export function AddEmailModal({
       // 发送批量添加请求
       const result = await batchAddAccounts({
         mailInfos: newEmails,
-        refreshNeeded: false, // todo 暂时设为 false，免得触发风控，之后要调回来
+        refreshNeeded: false, // 首次添加时暂不刷新 refresh_token
         user_id: currentUserId, // 传递用户 ID
       });
 

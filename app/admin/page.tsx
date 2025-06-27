@@ -11,6 +11,7 @@ import {
   IconKey,
   IconDatabase,
   IconCheck,
+  IconRefresh,
 } from "@/components/icons/icons";
 
 export default function AdminDashboardPage() {
@@ -66,6 +67,14 @@ export default function AdminDashboardPage() {
       href: "/admin/batch-add-emails",
       color: "text-blue-500",
       bgColor: "bg-blue-500/10",
+    },
+    {
+      title: "刷新 Token",
+      description: "批量刷新邮箱账户的 refresh_token",
+      icon: <IconRefresh className="h-8 w-8" />,
+      href: "/admin/refresh-tokens",
+      color: "text-purple-500",
+      bgColor: "bg-purple-500/10",
     },
   ];
 

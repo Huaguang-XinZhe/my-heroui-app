@@ -50,6 +50,7 @@ export const NEXT_API_CONFIG = {
     MAIL: {
       ACCOUNTS: "/mail/accounts",
       BATCH_ADD_ACCOUNT: "/mail/batch-add-account",
+      REFRESH_TOKENS: "/mail/refresh-tokens",
       LATEST: "/mail/latest",
       LATEST_JUNK: "/mail/latest/junk",
       HEALTH: "/mail/health",
