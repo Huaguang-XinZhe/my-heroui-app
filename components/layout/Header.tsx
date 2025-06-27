@@ -28,6 +28,7 @@ import {
 } from "@/utils/oauthUserStorage";
 import { Logo } from "@/components/icons/Logo";
 import { IconLogin } from "@/components/icons/icons";
+import { ExternalLinkIcon } from "@/components/icons/ExternalLinkIcon";
 import { TrialAccount } from "@/types/email";
 
 export function Header() {
@@ -285,21 +286,27 @@ export function Header() {
       </NavbarContent>
 
       <NavbarContent className="hidden gap-4 sm:flex" justify="center">
-        {/* <NavbarItem>
-          <HeroLink color="foreground" href="#">
-            功能
-          </HeroLink>
+        <NavbarItem>
+          <span
+            className="flex cursor-not-allowed items-center gap-1 text-foreground/50"
+            title="正在施工中，敬请期待"
+          >
+            API 集成
+            <span className="text-xs">🚧</span>
+          </span>
         </NavbarItem>
         <NavbarItem>
-          <HeroLink color="foreground" href="#">
-            服务
+          <HeroLink
+            color="foreground"
+            href="https://feedback.youquxing.com/zh-CN/roadmap"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative"
+          >
+            路线图
+            <ExternalLinkIcon />
           </HeroLink>
         </NavbarItem>
-        <NavbarItem>
-          <HeroLink color="foreground" href="#">
-            集成
-          </HeroLink>
-        </NavbarItem> */}
       </NavbarContent>
 
       <NavbarContent justify="end">{renderUserMenu()}</NavbarContent>

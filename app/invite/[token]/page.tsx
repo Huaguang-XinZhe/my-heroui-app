@@ -139,8 +139,17 @@ export default function InvitePage() {
 
         showSuccessToast("已为您创建体验账户，正在跳转...");
 
+        // 确保 localStorage 已保存，然后跳转
         setTimeout(() => {
-          router.push("/");
+          // 再次验证 localStorage 中的数据
+          const savedAccount = localStorage.getItem("trialAccount");
+          if (savedAccount) {
+            console.log("体验账户已保存，跳转到首页");
+            router.replace("/");
+          } else {
+            console.error("体验账户保存失败，重新跳转到登录页");
+            router.replace("/login");
+          }
         }, 1500);
       } else {
         console.error("创建体验账户 API 返回失败:", result);
@@ -291,7 +300,10 @@ export default function InvitePage() {
             }),
           );
 
-          router.push("/");
+          // 延迟跳转，确保数据已保存
+          setTimeout(() => {
+            router.replace("/");
+          }, 500);
         } else {
           showErrorToast(useResult.error || "使用邀请失败");
         }

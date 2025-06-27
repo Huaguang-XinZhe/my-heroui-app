@@ -58,13 +58,31 @@ export async function POST(request: NextRequest) {
     } else {
       // 自定义邀请配置
       if (
-        !imapEmailCount ||
-        !graphEmailCount ||
+        imapEmailCount === undefined ||
+        imapEmailCount === null ||
+        graphEmailCount === undefined ||
+        graphEmailCount === null ||
         !maxRegistrations ||
         !validDays
       ) {
         return NextResponse.json(
           { success: false, error: "缺少必需的参数" },
+          { status: 400 },
+        );
+      }
+
+      // 检查邮箱数量是否为负数
+      if (parseInt(imapEmailCount) < 0 || parseInt(graphEmailCount) < 0) {
+        return NextResponse.json(
+          { success: false, error: "邮箱数量不能为负数" },
+          { status: 400 },
+        );
+      }
+
+      // 检查是否至少有一种邮箱类型
+      if (parseInt(imapEmailCount) === 0 && parseInt(graphEmailCount) === 0) {
+        return NextResponse.json(
+          { success: false, error: "IMAP 和 GRAPH 邮箱数量不能同时为 0" },
           { status: 400 },
         );
       }

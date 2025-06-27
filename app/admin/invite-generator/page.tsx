@@ -37,7 +37,7 @@ export default function InviteGeneratorPage() {
   const router = useRouter();
 
   // 表单状态
-  const [imapEmailCount, setImapEmailCount] = useState("1");
+  const [imapEmailCount, setImapEmailCount] = useState("0");
   const [graphEmailCount, setGraphEmailCount] = useState("1");
   const [maxRegistrations, setMaxRegistrations] = useState("1");
   const [validDays, setValidDays] = useState("7");
@@ -89,13 +89,41 @@ export default function InviteGeneratorPage() {
 
   // 生成自定义邀请链接
   const handleGenerateCustom = async () => {
+    // 检查输入是否为空
     if (
-      parseInt(imapEmailCount) < 0 ||
-      parseInt(graphEmailCount) < 0 ||
-      parseInt(maxRegistrations) <= 0 ||
-      parseInt(validDays) <= 0
+      !imapEmailCount.trim() ||
+      !graphEmailCount.trim() ||
+      !maxRegistrations.trim() ||
+      !validDays.trim()
     ) {
+      alert("请填写所有必需字段");
+      return;
+    }
+
+    const imapCount = parseInt(imapEmailCount);
+    const graphCount = parseInt(graphEmailCount);
+    const maxReg = parseInt(maxRegistrations);
+    const validDaysNum = parseInt(validDays);
+
+    // 检查是否为有效数字
+    if (
+      isNaN(imapCount) ||
+      isNaN(graphCount) ||
+      isNaN(maxReg) ||
+      isNaN(validDaysNum)
+    ) {
+      alert("请输入有效的数字");
+      return;
+    }
+
+    if (imapCount < 0 || graphCount < 0 || maxReg <= 0 || validDaysNum <= 0) {
       alert("请输入有效的数值");
+      return;
+    }
+
+    // 检查是否至少有一种邮箱类型
+    if (imapCount === 0 && graphCount === 0) {
+      alert("IMAP 和 GRAPH 邮箱数量不能同时为 0");
       return;
     }
 
@@ -109,10 +137,10 @@ export default function InviteGeneratorPage() {
         },
         body: JSON.stringify({
           type: "custom",
-          imapEmailCount: parseInt(imapEmailCount),
-          graphEmailCount: parseInt(graphEmailCount),
-          maxRegistrations: parseInt(maxRegistrations),
-          validDays: parseInt(validDays),
+          imapEmailCount: imapCount,
+          graphEmailCount: graphCount,
+          maxRegistrations: maxReg,
+          validDays: validDaysNum,
           registrationMethods: {
             linuxdo: allowLinuxdo,
             google: allowGoogle,
@@ -302,6 +330,7 @@ export default function InviteGeneratorPage() {
                   value={imapEmailCount}
                   onValueChange={setImapEmailCount}
                   min="0"
+                  description="允许设置为 0"
                   startContent={<IconMail className="h-4 w-4" />}
                 />
                 <Input
@@ -310,6 +339,7 @@ export default function InviteGeneratorPage() {
                   value={graphEmailCount}
                   onValueChange={setGraphEmailCount}
                   min="0"
+                  description="允许设置为 0"
                   startContent={<IconMail className="h-4 w-4" />}
                 />
               </div>
