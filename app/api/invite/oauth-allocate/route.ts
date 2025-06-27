@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyInviteToken } from "@/utils/inviteUtils";
-import { getUserById } from "@/lib/supabase/users";
+import { getUserById, updateUser } from "@/lib/supabase/users";
 import { getUserMailAccounts } from "@/lib/supabase/mailAccounts";
 import { getAvailableMailAccounts } from "@/lib/supabase/mailAccounts";
 import { createClient } from "@/lib/supabase/client";
@@ -55,6 +55,14 @@ export async function POST(request: NextRequest) {
         { success: false, error: "用户不存在" },
         { status: 404 },
       );
+    }
+
+    // 如果用户的 invited_by 字段为空，且有邀请信息，更新用户的 invited_by 字段
+    if (!user.invited_by && inviteData.createdBy) {
+      console.log(
+        `更新用户 ${userId} 的 invited_by 字段为 ${inviteData.createdBy}`,
+      );
+      await updateUser(userId, { invited_by: inviteData.createdBy });
     }
 
     // 检查用户是否已有分配的邮箱

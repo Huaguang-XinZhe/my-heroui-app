@@ -100,6 +100,7 @@ const handler = NextAuth({
             nickname: user.name || user.email?.split("@")[0] || undefined,
             avatar_url: user.image || undefined,
             user_type: userType,
+            // invited_by 将在邮箱分配时设置
           };
         } else if (account.provider === "linuxdo") {
           console.log("[NextAuth] Processing LinuxDO OAuth");
@@ -114,6 +115,7 @@ const handler = NextAuth({
             avatar_url: user.image || undefined,
             user_type: userType,
             level: trustLevel,
+            // invited_by 将在邮箱分配时设置
           };
         } else {
           console.log("[NextAuth] Unknown provider, allowing through");
@@ -128,7 +130,7 @@ const handler = NextAuth({
           console.log("[NextAuth] Creating new user");
           // 创建新用户
           const created = await createUser(userData);
-          if (!created) {
+          if (!created.success) {
             console.error("[NextAuth] Failed to create user:", userId);
             return false;
           }

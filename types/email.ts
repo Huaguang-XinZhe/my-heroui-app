@@ -59,6 +59,7 @@ export interface User {
   avatar_url?: string;
   user_type: UserType;
   level?: number; // Linux DO 信任等级
+  invited_by?: string; // 受邀人，记录邀请者的用户ID
   created_at?: string;
   updated_at?: string;
 }

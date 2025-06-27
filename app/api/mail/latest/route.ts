@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { goMailApiService } from "@/lib/goMailApi";
 import { GetLatestMailRequest, GetLatestMailResponse } from "@/types/email";
-import { storeMail, getUserByEmail, createUser } from "@/lib/supabase/client";
+import { storeMail, getUserByEmail } from "@/lib/supabase/client";
 import { fillDefaultValues } from "@/utils/mailUtils";
 
 /**
@@ -42,21 +42,8 @@ export async function POST(request: NextRequest) {
     // 注意：这里我们不等待数据库操作完成，立即返回结果（模拟原后端行为）
     Promise.resolve().then(async () => {
       try {
-        // 通过邮箱地址获取或创建用户
-        let user = await getUserByEmail(mailInfo.email);
-
-        if (!user) {
-          // 如果用户不存在，创建一个新用户（假设是 oauth2-google 类型）
-          const created = await createUser({
-            id: mailInfo.email,
-            nickname: mailInfo.email.split("@")[0], // 使用邮箱前缀作为昵称
-            user_type: "oauth2-google",
-          });
-
-          if (created) {
-            user = await getUserByEmail(mailInfo.email);
-          }
-        }
+        // 通过邮箱地址查找用户（邮箱已经在 mail_accounts 表中，肯定有对应的用户）
+        const user = await getUserByEmail(mailInfo.email);
 
         if (user && goMailData?.email) {
           // 存储邮件到数据库
@@ -71,10 +58,13 @@ export async function POST(request: NextRequest) {
           } else {
             console.log(`邮件存储失败: ${goMailData.email.id}`);
           }
+        } else {
+          // 如果找不到用户，说明邮箱账户可能未正确分配给用户
+          console.warn(`邮箱 ${mailInfo.email} 未找到对应用户，跳过邮件存储`);
         }
 
         const elapsed = Date.now() - startTime;
-        console.log(`获取最新邮件完成，异步存储到数据库成功 (${elapsed}ms)`);
+        console.log(`获取最新邮件完成，异步存储处理完成 (${elapsed}ms)`);
       } catch (dbError) {
         console.error("异步存储到数据库失败:", dbError);
       }

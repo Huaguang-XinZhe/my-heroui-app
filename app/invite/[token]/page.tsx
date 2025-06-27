@@ -310,7 +310,9 @@ export default function InvitePage() {
   const handleOAuthSignIn = (provider: "google" | "linuxdo") => {
     // 在 OAuth 登录时将邀请令牌保存到 sessionStorage
     sessionStorage.setItem("inviteToken", token);
-    signIn(provider, { callbackUrl: "/" });
+    // 通过回调 URL 传递邀请令牌，以便 NextAuth 可以访问
+    const callbackUrl = `/?inviteToken=${encodeURIComponent(token)}`;
+    signIn(provider, { callbackUrl });
   };
 
   // 如果正在处理自动创建体验账户

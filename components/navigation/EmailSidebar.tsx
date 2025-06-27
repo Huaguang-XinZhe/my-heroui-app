@@ -78,11 +78,6 @@ export function EmailSidebar({
       return;
     }
 
-    // 检查邮箱切换冷却，但不显示警告（已通过 tooltip 显示）
-    if (isInSwitchCooldown()) {
-      return;
-    }
-
     if (onEmailSelect) {
       onEmailSelect(email);
 
