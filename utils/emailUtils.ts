@@ -55,28 +55,31 @@ export function getFaviconUrl(email: string): string {
   };
 
   const parts = domain.split(".");
+  let targetDomain = domain;
 
   if (parts.length === 3 && parts[2] === "com") {
-    // 三级域名且一级部分是 com：直接取到二级域名，前边加 www
-    // 例如：user@mail.google.com -> www.google.com
-    return `https://www.${parts[1]}.com/favicon.ico`;
+    // 三级域名且一级部分是 com：直接取到二级域名
+    // 例如：user@mail.google.com -> google.com
+    targetDomain = `${parts[1]}.com`;
   } else {
-    // 首先检查精确的域名映射
+    // 检查精确的域名映射
     const mappedDomain = domainMap[domain];
     if (mappedDomain) {
-      return `https://www.${mappedDomain}/favicon.ico`;
-    }
-
-    // 如果没有精确映射，尝试关键词匹配
-    for (const [keyword, targetDomain] of Object.entries(keywordMap)) {
-      if (domain.includes(keyword)) {
-        return `https://www.${targetDomain}/favicon.ico`;
+      targetDomain = mappedDomain;
+    } else {
+      // 如果没有精确映射，尝试关键词匹配
+      for (const [keyword, keywordTargetDomain] of Object.entries(keywordMap)) {
+        if (domain.includes(keyword)) {
+          targetDomain = keywordTargetDomain;
+          break;
+        }
       }
     }
-
-    // 如果都没有匹配，直接前边加 www
-    return `https://www.${domain}/favicon.ico`;
   }
+
+  // 构造 favicon URL 并通过代理访问
+  const faviconUrl = `https://www.${targetDomain}/favicon.ico`;
+  return `/api/proxy-image?url=${encodeURIComponent(faviconUrl)}`;
 }
 
 /**

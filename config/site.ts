@@ -5,8 +5,8 @@ export const siteConfig = {
   description: "邮取星……",
   // 冷却时间配置（秒）
   cooldowns: {
-    inbox: 30, // 收件箱获取冷却时间
-    junk: 30, // 垃圾箱获取冷却时间
+    inbox: 10, // 收件箱获取冷却时间
+    junk: 10, // 垃圾箱获取冷却时间
     emailSwitch: 5, // 邮箱切换冷却时间
   },
   navItems: [
